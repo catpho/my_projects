@@ -1,13 +1,13 @@
 import containerQueries from '@tailwindcss/container-queries';
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
-import flowbitePlugin from 'flowbite/plugin';
+import flowbitePlugin from 'flowbite/plugin'
 
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
 
-  theme: {
+	theme: {
     extend: {
       colors: {
         // flowbite-svelte
@@ -25,10 +25,7 @@ export default {
         }
       }
     }
-  },
+	},
 
-  plugins: [typography, forms, containerQueries, flowbitePlugin]
+	plugins: [typography, forms, containerQueries, flowbitePlugin]
 };
-
-
-
