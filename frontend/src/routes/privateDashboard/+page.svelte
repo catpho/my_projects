@@ -62,16 +62,22 @@
     // Function to fetch notes from Firestore
     async function fetchNotes() {
         try {
-            const querySnapshot = await getDocs(collection(db, "notes"));
-            notes = querySnapshot.docs.map(doc => ({
+        const querySnapshot = await getDocs(collection(db, "notes"));
+        notes = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
                 id: doc.id,
-                ...doc.data()
-            }));
-            console.log("Fetched notes:", notes);
-        } catch (error) {
-            console.error("Error fetching notes:", error);
-        }
+                ...data,
+                // Convert Timestamp fields to Date objects
+                noteCreatedAt: data.noteCreatedAt ? data.noteCreatedAt.toDate() : null,
+                lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : null,
+            };
+        });
+        console.log("Fetched notes:", notes);
+    } catch (error) {
+        console.error("Error fetching notes:", error);
     }
+}
 
     // Fetch notes when the component is mounted
     fetchNotes();
