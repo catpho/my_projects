@@ -1,11 +1,7 @@
 // @ts-nocheck
 import { derived, writable } from 'svelte/store';
 import {
-    auth,
-    googleProvider,
-    facebookProvider,
-    provider as appleProvider,
-    twitterProvider
+    auth
 } from '$lib/firebase/firebase.client';
 import {
     createUserWithEmailAndPassword,
@@ -40,30 +36,7 @@ export const authHandlers = {
     login: async (email, password) => {
         await signInWithEmailAndPassword(auth, email, password);
     },
-    loginWithGoogle: async () => {
-        await signInWithPopup(auth, googleProvider);
-    },
-    loginWithFacebook: async () => {
-        await signInWithPopup(auth, facebookProvider);
-    },
-    loginWithApple: async () => {
-        try {
-            const result = await signInWithPopup(auth, appleProvider);
-            const isNewUser = result.additionalUserInfo.isNewUser;
-            const appleProfile = result.additionalUserInfo.profile;
-
-            if (isNewUser && appleProfile) {
-                const displayName = appleProfile.name;
-                await updateProfile({ displayName });
-            }
-            return result;
-        } catch (error) {
-            return error;
-        }
-    },
-    loginWithTwitter: async () => {
-        await signInWithPopup(auth, twitterProvider);
-    },
+    
     checkEmailExists: async (email) => {
         try {
             const signInMethods = await fetchSignInMethodsForEmail(auth, email);
