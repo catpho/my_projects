@@ -271,9 +271,9 @@
 	{#if !forgotPassword}
 		<div class="mt-3 w-5/6">
 			<div class="mb-3 mt-1 flex items-center">
-				<div class="flex-1 border-b border-gray-300" />
+				
 				<span class="px-2 text-xs font-bold">OR</span>
-				<div class="flex-1 border-b border-gray-300" />
+				
 			</div>
 
 			<div class="mb-3 flex items-center justify-center">
