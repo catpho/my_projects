@@ -1,94 +1,77 @@
 <script>
     //@ts-nocheck
-    import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore"; 
+    import { onMount } from 'svelte';
+    import {userStore, userHandlers} from '$lib/stores/userStore';
+    import { noteStore, noteHandlers } from '$lib/stores/noteStore';
+	
 
-    let notes = []; 
-// Initialize Firebase Firestore (ensure Firebase is already initialized elsewhere in your app)
-    const db = getFirestore();
-    let showModal = false;  // State to control the visibility of the modal
-    let noteData = {
-        title: '',
-        type: 'written', // Default to 'written'
-        tags: [],
-        access: 'Private',
-        content:'',
-        imageUrls: [] // You might need to initialize imageUrls too if it's part of the data
-    };
+    let showModal = false;
+    let isEditing = false;
+    let noteID = null;  // Track the ID of the note being edited
+    let noteData = { title: '', type: 'written', tags: '', access: 'Private', content: '', imageUrls: [] };
+  
 
-    // Function to open the modal for creating a new note
     function openModal() {
         showModal = true;
     }
 
-    // Function to close the modal
     function closeModal() {
         showModal = false;
+        noteData = { title: '', type: 'written', tags: '', access: 'Private', content: '', imageUrls: [] };
+        isEditing = false;
+        noteID = null;  // Reset noteID when closing the modal
     }
 
-    // Function to save the new note (you'll need to integrate it with Firebase or another backend)
-    async function saveNote() {
-        // Add the logic to save the note to Firestore, such as calling the createNote function
-        console.log("Saving new note:", noteData);
-        // Close the modal after saving
-        try {
-            // Handle tags: if it's a string, split by commas, else assume it's already an array
-            const tagsArray = noteData.tags.length > 0 ? noteData.tags : [];
-
-            // Prepare the new note object
-            const newNote = {
-                title: noteData.title,
-                type: noteData.type,  // 'written', 'spoken', etc.
-                tags: tagsArray,      // Tags are now an array
-                access: noteData.access,  // Public or Private
-                content: noteData.content,
-                noteCreatedAt: new Date(),  // Use JavaScript Date object for created timestamp
-                lastUpdated: new Date(),    // Use JavaScript Date object for last updated timestamp
-                imageUrls: noteData.imageUrls || [], // Optional: handle images if provided
-            };
-
-            // Add the new note to Firestore (you need to use Firebase Firestore methods here)
-            const docRef = await addDoc(collection(db, "notes"), newNote);
-
-            // Log the document ID to confirm it's been saved
-            console.log("Document written with ID: ", docRef.id);
-
-            // Optionally close the modal or reset the form
-            closeModal();  // Assuming closeModal is a function to close the modal
-        } catch (error) {
-            console.error("Error saving note:", error);
+    async function handleSaveNote() {
+        if (typeof noteData.tags === 'string') {
+        noteData.tags = noteData.tags.split(',').map(tag => tag.trim());
         }
+        if (isEditing) {
+            await noteHandlers.updateNote(noteID, noteData);  // Use noteID for updating the note
+        } else {
+            await noteHandlers.createNote(noteData);
+        }
+        await noteHandlers.getNotes();
+        closeModal();
     }
 
-    // Function to fetch notes from Firestore
-    async function fetchNotes() {
-        try {
-        const querySnapshot = await getDocs(collection(db, "notes"));
-        notes = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                ...data,
-                // Convert Timestamp fields to Date objects
-                noteCreatedAt: data.noteCreatedAt ? data.noteCreatedAt.toDate() : null,
-                lastUpdated: data.lastUpdated ? data.lastUpdated.toDate() : null,
-            };
+    // When editing, populate the form fields with the note's data
+    function handleEditNote(note) {
+        isEditing = true;
+        noteID = note.id;  // Set noteID when editing a note
+        noteData = { ...note }; // Copy the note data into noteData
+        openModal();  // Open the modal for editing
+    }
+
+
+
+        onMount(() => {
+            // Fetch the notes
+            noteHandlers.getNotes();
+
+            // Check the user login state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in, store user info
+                    currentUserStore.set(user);
+                } else {
+                    // No user is signed in
+                    currentUserStore.set(null);
+                }
+            });
         });
-        console.log("Fetched notes:", notes);
-    } catch (error) {
-        console.error("Error fetching notes:", error);
-    }
-}
 
-    // Fetch notes when the component is mounted
-    fetchNotes();
 </script>
 
+<!--FIXME: need to check if the notes are connected to one user at a time. then make sure the user is fetched through this page so can see the user name -->
+
+
 <div>HEY YOU'VE REACHED PERSONAL PAGE</div>
-<!-- Button to trigger the modal for creating a new note -->
+
 <button on:click={openModal}>Add New Note</button>
 
 <div class="notes-list">
-    {#each notes as note}
+    {#each $noteStore.notes as note}
         <div class="note-item">
             <h3>{note.title}</h3>
             <p>{note.content}</p>
@@ -98,45 +81,50 @@
                 {/each}
             </ul>
             <p><strong>Access:</strong> {note.access}</p>
-            <p><strong>Created At:</strong> {new Date(note.noteCreatedAt).toLocaleString()}</p>
-            <p><strong>Last Updated:</strong> {new Date(note.lastUpdated).toLocaleString()}</p>
+            <p><strong>Created At:</strong> 
+                {note.noteCreatedAt ? new Date(note.noteCreatedAt.seconds * 1000).toLocaleString() : 'N/A'}
+              </p>
+              <p><strong>Last Updated:</strong> 
+                {note.lastUpdated ? new Date(note.lastUpdated.seconds * 1000).toLocaleString() : 'N/A'}
+              </p>
+              
+              <!-- Edit and Delete Buttons-->
+              <button class="edit-btn" on:click={() => handleEditNote(note)}>✏️ Edit</button>
+              <button class="delete-btn" on:click={() => noteHandlers.deleteNote(note.id)}>🗑️ Delete</button>
+
         </div>
     {/each}
 </div>
 
-<!-- Modal for creating a new note -->
 {#if showModal}
     <div class="modal">
         <div class="modal-content">
-            <h2>Create a New Note</h2>
+            <h2>{isEditing ? 'Edit Note' : 'Create a New Note'}</h2>
 
             <label for="title">Title:</label>
-            <input type="text" id="title" bind:value={noteData.title} placeholder="Enter note title" />
+            <input type="text" id="title" bind:value={noteData.title} />  <!-- Pre-filled with noteData.title -->
 
             <label for="type">Type:</label>
             <select id="type" bind:value={noteData.type}>
-                <option value="written">Written</option>
-                <option value="spoken">Spoken</option>
-                <option value="images">Images</option>
-                <option value="hybrid">Hybrid</option>
+                <option value="written" selected={noteData.type === 'written'}>Written</option>
+                <option value="spoken" selected={noteData.type === 'spoken'}>Spoken</option>
+                <option value="images" selected={noteData.type === 'images'}>Images</option>
+                <option value="hybrid" selected={noteData.type === 'hybrid'}>Hybrid</option>
             </select>
 
             <label for="tags">Tags:</label>
-            <input type="text" id="tags" bind:value={noteData.tags} placeholder="Enter tags (comma separated)" />
+            <input type="text" id="tags" bind:value={noteData.tags} placeholder="Comma-separated tags" />
 
             <label for="content">Content:</label>
-            <textarea id="content" bind:value={noteData.content} placeholder="Enter the content of the note"></textarea>
+            <textarea id="content" bind:value={noteData.content}></textarea>
 
             <label for="access">Access:</label>
             <select id="access" bind:value={noteData.access}>
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
+                <option value="Public" selected={noteData.access === 'Public'}>Public</option>
+                <option value="Private" selected={noteData.access === 'Private'}>Private</option>
             </select>
 
-            <!-- Save Button -->
-            <button on:click={saveNote}>Save Note</button>
-
-            <!-- Cancel Button -->
+            <button on:click={handleSaveNote}>{isEditing ? 'Update Note' : 'Save Note'}</button>
             <button on:click={closeModal}>Cancel</button>
         </div>
     </div>
@@ -168,7 +156,7 @@ label {
     margin: 10px 0 5px;
 }
 
-input, select {
+input, select, textarea {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;
@@ -190,7 +178,7 @@ button {
 button:hover {
     background-color: #45a049;
 }
-/* Style for the notes list */
+
 .notes-list {
     margin-top: 20px;
 }
@@ -218,5 +206,19 @@ button:hover {
     background-color: #e0e0e0;
     padding: 5px;
     border-radius: 3px;
+}
+
+/* Styling for Edit and Delete Buttons */
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    color: #4CAF50;
 }
 </style>

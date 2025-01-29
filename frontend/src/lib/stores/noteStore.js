@@ -8,7 +8,8 @@ updateDoc,
 getDoc,
 getDocs,
 collection,
-doc
+doc,
+serverTimestamp
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -33,7 +34,7 @@ try {
 const notesRef = collection(db, 'notes');
 const snapshot = await getDocs(notesRef);
 const notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-noteStore.set({ isLoading: false, notes });
+noteStore.set({ isLoading: false, notes,currentNote: null });
 } catch (error) {
 console.error('Error fetching notes:', error);
 }
@@ -69,7 +70,10 @@ try {
 const notesRef = collection(db, 'notes');
 const newNoteRef = await addDoc(notesRef, {
 ...noteData,
-imageUrls: [] // Initialize with an empty imageUrls array
+imageUrls: [],
+noteCreatedAt: serverTimestamp(),
+lastUpdated: serverTimestamp()
+ // Initialize with an empty imageUrls array
 });
 return newNoteRef.id;
 } catch (error) {
