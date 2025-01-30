@@ -1,5 +1,5 @@
 <script>
-	import Counter from './Counter.svelte';
+	
 	import newlogo from '$lib/images/svelte-new-logo.png';
 </script>
 
@@ -21,7 +21,7 @@
 		Write Everything<br />Avoid OverSharing
 	</h1>
 
-	<!-- old component, delete afterwords <Counter /> -->
+	
 
 </section>
 

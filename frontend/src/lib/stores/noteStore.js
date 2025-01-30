@@ -9,10 +9,11 @@ getDoc,
 getDocs,
 collection,
 doc,
-serverTimestamp
+serverTimestamp, query,
+where
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
+import {auth} from '$lib/firebase/firebase.client';
 /**
  * @typedef {import('./components').Note} Note
  */
@@ -31,8 +32,16 @@ export const noteHandlers = {
 // Fetch all notes
 getNotes: async () => {
 try {
+
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+        
+    if (!userId) {
+        throw new Error("User is not authenticated.");
+    }
+
 const notesRef = collection(db, 'notes');
-const snapshot = await getDocs(notesRef);
+const q = query(notesRef, where('userId', '==', userId)); // Query only the user's notes
+const snapshot = await getDocs(q);
 const notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 noteStore.set({ isLoading: false, notes,currentNote: null });
 } catch (error) {
@@ -43,6 +52,13 @@ console.error('Error fetching notes:', error);
 // Fetch a single note by ID
 getNote: async (noteId) => {
 try {
+
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+        
+    if (!userId) {
+        throw new Error("User is not authenticated.");
+    }
+
 const noteRef = doc(db, 'notes', noteId);
 const noteDoc = await getDoc(noteRef);
 if (noteDoc.exists()) {
@@ -51,6 +67,10 @@ noteStore.update(state => ({
 isLoading: false,
 currentNote: { id: noteDoc.id, ...noteDoc.data() }
 }));
+
+if (noteData.userId !== userId) {
+    throw new Error("You do not have permission to view this note.");
+}
 } else {
 console.warn(`Note with ID ${noteId} does not exist.`);
 noteStore.update(state => ({
@@ -67,9 +87,18 @@ console.error('Error fetching note:', error);
 // Add a new note
 createNote: async (noteData) => {
 try {
+
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+        
+    if (!userId) {
+        throw new Error("User is not authenticated.");
+    }
+
+
 const notesRef = collection(db, 'notes');
 const newNoteRef = await addDoc(notesRef, {
 ...noteData,
+userId,
 imageUrls: [],
 noteCreatedAt: serverTimestamp(),
 lastUpdated: serverTimestamp()
@@ -95,6 +124,7 @@ return getDownloadURL(storageRef);
 );
 
 const noteRef = doc(db, 'notes', noteId);
+
 await updateDoc(noteRef, { imageUrls });
 return imageUrls;
 } catch (error) {
@@ -106,7 +136,17 @@ throw error;
 // Update an existing note
 updateNote: async (noteId, noteData) => {
 try {
+
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+        
+    if (!userId) {
+        throw new Error("User is not authenticated.");
+    }
 const noteRef = doc(db, 'notes', noteId);
+const noteDoc = await getDoc(noteRef);
+if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
+    throw new Error("You do not have permission to update this note.");
+}
 await updateDoc(noteRef, noteData);
 return noteId;
 } catch (error) {
@@ -117,12 +157,25 @@ throw error;
 
 // Delete a note
 deleteNote: async (noteId) => {
+
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+    
+    if (!userId) {
+        throw new Error("User is not authenticated.");
+    }
+
 const confirmation = window.confirm('Are you sure you want to delete this note?');
 if (confirmation) {
 try {
 const noteRef = doc(db, 'notes', noteId);
+const noteDoc = await getDoc(noteRef);
+if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
+    throw new Error("You do not have permission to delete this note.");
+}
 await deleteDoc(noteRef);
 alert('Note successfully deleted.');
+
+await noteHandlers.getNotes();
 } catch (error) {
 console.error('Error deleting note:', error);
 }

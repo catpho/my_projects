@@ -1,13 +1,21 @@
 // @ts-nocheck
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase/firebase.client';
+import {auth} from '$lib/firebase/firebase.client';
 import { addDoc, deleteDoc, updateDoc, getDoc, getDocs, collection, doc } from 'firebase/firestore';
-
+import { onAuthStateChanged } from 'firebase/auth';
 export const userStore = writable({
     isLoading: true,
     users: [], // Store user data as an array
     currentUser: null
 });
+
+onAuthStateChanged(auth, (user) => {
+    userStore.set({
+      isLoading: false,
+      currentUser: user
+    });
+  });
 
 // CRUD operations for users
 export const userHandlers = {

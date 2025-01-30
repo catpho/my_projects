@@ -1,9 +1,12 @@
 <script>
     //@ts-nocheck
     import { onMount } from 'svelte';
-    import {userStore, userHandlers} from '$lib/stores/userStore';
+    import {userStore} from '$lib/stores/userStore';
     import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	
+
+    let userData = null;
+  
 
     let showModal = false;
     let isEditing = false;
@@ -46,32 +49,30 @@
 
 
         onMount(() => {
-            // Fetch the notes
-            noteHandlers.getNotes();
-
-            // Check the user login state
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // User is signed in, store user info
-                    currentUserStore.set(user);
+            
+            if ($userStore.currentUser) {
+                noteHandlers.getNotes(); // Fetch notes specific to the current user
                 } else {
-                    // No user is signed in
-                    currentUserStore.set(null);
+                    console.log("User not authenticated.");
                 }
-            });
+                
         });
 
 </script>
 
 <!--FIXME: need to check if the notes are connected to one user at a time. then make sure the user is fetched through this page so can see the user name -->
 
-
-<div>HEY YOU'VE REACHED PERSONAL PAGE</div>
+{#if $userStore.isLoading}
+    <p>Loading user data...</p>
+{:else if $userStore.currentUser}
+    <p>{$userStore.currentUser.displayName}'s Personal Dashboard</p>
+{/if}
 
 <button on:click={openModal}>Add New Note</button>
 
 <div class="notes-list">
     {#each $noteStore.notes as note}
+        {#if note.userId === $userStore.currentUser.uid}
         <div class="note-item">
             <h3>{note.title}</h3>
             <p>{note.content}</p>
@@ -93,6 +94,7 @@
               <button class="delete-btn" on:click={() => noteHandlers.deleteNote(note.id)}>🗑️ Delete</button>
 
         </div>
+        {/if}
     {/each}
 </div>
 
