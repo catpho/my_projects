@@ -1,6 +1,4 @@
 <script>
-	
-	import newlogo from '$lib/images/svelte-new-logo.png';
 </script>
 
 <svelte:head>
@@ -8,49 +6,32 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<section>
-	<h1>
-		<span class="welcome">
-			
-			<picture>
-				<img src={newlogo} alt="Welcome" />
-			</picture>
+<div class="flex h-full w-full flex-col items-center justify-center gap-10 px-5">
+	<img class="max-h-[500px] w-auto object-cover" src="/images/defaultLogo.png" alt="Welcome" />
 
-		</span>
+	<div class="item-center flex flex-col gap-2">
+		<div class="text-center text-3xl font-medium text-black">
+			Write Everything
+			<br />
+			Avoid OverSharing
+		</div>
 
-		Write Everything<br />Avoid OverSharing
-	</h1>
+		<div class="text-center text-sm text-gray-500">
+			People can be clever as high as the sky, but as long as they don't write, they will be lost in
+			society and from history.
+		</div>
+	</div>
 
-	
-
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 100%;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>
+	<!-- svelte-ignore a11y_consider_explicit_label -->
+	<a href="/auth" class="flex items-center justify-center rounded-full bg-gray-800 p-5 text-white">
+		<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path
+				d="M9 18L15 12L9 6"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	</a>
+</div>

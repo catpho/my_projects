@@ -48,6 +48,8 @@
 						<button type="button" class="whitespace-nowrap rounded-lg px-6 py-2" on:click={logout}
 							>Logout</button
 						>
+
+						<button type="button"> profilePic </button>
 					{:else}
 						<button
 							on:click={() => {

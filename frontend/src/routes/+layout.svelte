@@ -4,12 +4,14 @@
 
 	import { onMount } from 'svelte';
 	import { auth, db } from '$lib/firebase/firebase.client';
+	import Header from '$lib/components/Header.svelte';
 	import { authStore } from '$lib/stores/authStore';
 	import { getDoc, setDoc, doc } from 'firebase/firestore';
-	import Header from '$lib/components/Header.svelte';
-	import LoginModal from '$lib/components/LoginModal.svelte';
-	import Auth from '$lib/components/Auth.svelte';
+	import { noteHandlers } from '$lib/stores/noteStore';
+	import { userHandlers } from '$lib/stores/userStore';
+	import { goto } from '$app/navigation';
 
+	let userId = null;
 	let displayBugBanner = true;
 	let loginOrRegister = 'sign-in';
 	let showLoginModal = false;
@@ -27,6 +29,24 @@
 		'/termsOfUse',
 		'/privacyPolicy'
 	];
+
+	authStore.subscribe((state) => {
+		userId = state?.currentUser?.uid;
+		console.log('these id', userId);
+	});
+
+	const fetchNotes = async () => {
+		await noteHandlers.getUserNotes(userId);
+	};
+
+	const fetchUser = async () => {
+		await userHandlers.getUser(userId);
+	};
+
+	$: if (userId) {
+		fetchUser();
+		fetchNotes();
+	}
 
 	onMount(async () => {
 		const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -51,9 +71,7 @@
 						console.log('Creating/initializing first-time User');
 
 						// Use Google profile image if available, otherwise use default image
-						let profileImage =
-							user.photoURL ||
-							'https://i.imgur.com/mCHMpLT.png';
+						let profileImage = user.photoURL || 'https://i.imgur.com/mCHMpLT.png';
 
 						const userRef = doc(db, 'users', user.uid);
 						dataToSetToStore = {
@@ -61,12 +79,12 @@
 							profileImage: profileImage, // Set profileImage from Google or default
 							displayName: user.displayName,
 							uid: user.uid,
-							biography:"",
-							personalNoteBoard:[],
-							collaborators:[],
+							biography: '',
+							personalNoteBoard: [],
+							collaborators: [],
 							createAt: new Date().toISOString(),
 							lastActive: new Date().toISOString(),
-							isPublic:false
+							isPublic: false
 						};
 						await setDoc(userRef, dataToSetToStore, { merge: true });
 						console.log('User document created successfully.');
@@ -86,52 +104,25 @@
 					console.error('Error handling user document:', error);
 					authStore.update((curr) => ({ ...curr, isLoading: false }));
 				}
+				goto('/privateDashboard');
 			}
 		});
 		return unsubscribe;
 	});
 </script>
 
-<div class="app">
-	<Header bind:showLoginModal bind:register />
-
-	<main>
+<div class="flex h-screen w-full flex-col bg-[#F8F8FA]">
+	{#if userId}
+		<Header />
+	{/if}
+	<main class=" mx-auto flex h-full w-full max-w-[64rem] flex-col p-1">
 		<slot></slot>
 	</main>
 
-	<LoginModal
-		bind:showModal={showLoginModal}
-		bind:displayLoginValidator
-		bind:forgotPassword
-		bind:registerStep
-		Class="w-1/2 h-[77%]"
-	>
-		<Auth bind:register bind:displayLoginValidator bind:forgotPassword />
-	</LoginModal>
-
-	<footer>
-		
-	</footer>
+	<footer></footer>
 </div>
 
 <style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
-	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-		width: 100%;
-		max-width: 64rem;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-
 	footer {
 		display: flex;
 		flex-direction: column;
@@ -139,8 +130,6 @@
 		align-items: center;
 		padding: 12px;
 	}
-
-	
 
 	@media (min-width: 480px) {
 		footer {
