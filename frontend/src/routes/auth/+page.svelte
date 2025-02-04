@@ -113,7 +113,10 @@
 	}
 </script>
 
-<div class="ml-10 flex flex-1 flex-col items-start justify-end">
+<div class="m-10 flex flex-col items-start justify-end">
+	<div class="mb-5 flex w-full items-center justify-center">
+		<img class=" max-h-[250px] w-auto object-cover" src="/images/defaultLogo.png" alt="Welcome" />
+	</div>
 	<!-- Register -->
 	{#if register}
 		<!-- Asks for email, password, confirm password, first name, last name -->

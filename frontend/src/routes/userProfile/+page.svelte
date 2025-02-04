@@ -135,9 +135,7 @@ profile picture, look at any subscriptions I have for this app. -->
 </script>
 
 <div class="flex w-full flex-col items-center gap-4">
-	<div class="w-full text-center text-lg font-extrabold md:text-left">Your Profile Picture</div>
-
-	<div class=" flex w-full items-center justify-center md:justify-start">
+	<div class=" flex w-full items-center justify-center">
 		{#if imageUrl}
 			<label for="imageReplacement" class="flex flex-col items-center gap-4">
 				<img
@@ -161,5 +159,30 @@ profile picture, look at any subscriptions I have for this app. -->
 		{#if error}
 			<p class="text-center text-sm text-red-500 sm:text-xs">{error}</p>
 		{/if}
+	</div>
+	<div class="w-full justify-center text-center text-lg font-extrabold">
+		{displayName}
+		<br />
+		Birthday here
+		<div
+			class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
+		>
+			Change Password?
+		</div>
+	</div>
+
+	<hr class="my-4 w-3/4 border-t border-gray-300" />
+	<div class="justify-left my-4 w-3/4">
+		<div class="w-full text-lg font-extrabold">Collaborators</div>
+		<div
+			class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
+		>
+			+add a User
+		</div>
+	</div>
+
+	<hr class="my-4 w-3/4 border-t border-gray-300" />
+	<div class="justify-left my-4 w-3/4">
+		<div class="w-full text-lg font-extrabold">Locked Notes</div>
 	</div>
 </div>
