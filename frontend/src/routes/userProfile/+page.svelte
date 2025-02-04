@@ -21,6 +21,7 @@ profile picture, look at any subscriptions I have for this app. -->
 	let uid;
 	let displayName;
 	let userData;
+	let isEditing = false;
 
 	authStore.subscribe((curr) => {
 		// If logged in with Google, use the photoURL from the provider
@@ -135,23 +136,35 @@ profile picture, look at any subscriptions I have for this app. -->
 </script>
 
 <div class="flex w-full flex-col items-center gap-4">
+	<div class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>Edit</div>
 	<div class=" flex w-full items-center justify-center">
 		{#if imageUrl}
-			<label for="imageReplacement" class="flex flex-col items-center gap-4">
+			{#if isEditing}
+				<label for="imageReplacement" class="flex flex-col items-center gap-4">
+					<img
+						class="aspect-square h-[250px] w-[250px] cursor-pointer rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
+						src={imageUrl}
+						alt="Profile"
+						referrerPolicy="no-referrer"
+					/>
+
+					<input
+						id="imageReplacement"
+						type="file"
+						class="block"
+						accept="image/*"
+						on:change={replaceImage}
+					/>
+				</label>
+			{:else}
+				<!-- Image is not clickable when isEditing is false -->
 				<img
-					class="aspect-square h-[250px] w-[250px] cursor-pointer rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
+					class="aspect-square h-[250px] w-[250px] rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
 					src={imageUrl}
 					alt="Profile"
 					referrerPolicy="no-referrer"
 				/>
-				<input
-					id="imageReplacement"
-					type="file"
-					class="hidden"
-					accept="image/*"
-					on:change={replaceImage}
-				/>
-			</label>
+			{/if}
 		{:else}
 			<input type="file" accept="image/*" on:change={replaceImage} />
 		{/if}
@@ -160,29 +173,36 @@ profile picture, look at any subscriptions I have for this app. -->
 			<p class="text-center text-sm text-red-500 sm:text-xs">{error}</p>
 		{/if}
 	</div>
+
 	<div class="w-full justify-center text-center text-lg font-extrabold">
 		{displayName}
 		<br />
 		Birthday here
-		<div
-			class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
-		>
-			Change Password?
-		</div>
+		{#if isEditing}
+			<div
+				class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
+			>
+				Change Password?
+			</div>
+		{/if}
 	</div>
 
 	<hr class="my-4 w-3/4 border-t border-gray-300" />
 	<div class="justify-left my-4 w-3/4">
 		<div class="w-full text-lg font-extrabold">Collaborators</div>
-		<div
-			class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
-		>
-			+add a User
-		</div>
+		<div>List here</div>
+		{#if isEditing}
+			<div
+				class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
+			>
+				+add a User
+			</div>
+		{/if}
 	</div>
 
 	<hr class="my-4 w-3/4 border-t border-gray-300" />
 	<div class="justify-left my-4 w-3/4">
 		<div class="w-full text-lg font-extrabold">Locked Notes</div>
+		<div>List here</div>
 	</div>
 </div>

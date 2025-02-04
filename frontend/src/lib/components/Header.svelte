@@ -50,7 +50,27 @@
 							>Logout</button
 						>
 
-						<button type="button" on:click={() => goto('/userProfile')}> profilePic </button>
+						<button
+							type="button"
+							aria-label="Go to user profile"
+							on:click={() => goto('/userProfile')}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="h-6 w-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 14c4 0 6 2 6 4v2H6v-2c0-2 2-4 6-4z"
+								/>
+								<circle cx="12" cy="7" r="4" />
+							</svg>
+						</button>
 					{:else}
 						<button
 							on:click={() => {
