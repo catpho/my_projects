@@ -4,6 +4,7 @@
 	export let showLoginModal = false;
 	import { authStore, authHandlers } from '$lib/stores/authStore';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let email;
 	let uid;
@@ -49,7 +50,7 @@
 							>Logout</button
 						>
 
-						<button type="button"> profilePic </button>
+						<button type="button" on:click={() => goto('/userProfile')}> profilePic </button>
 					{:else}
 						<button
 							on:click={() => {
