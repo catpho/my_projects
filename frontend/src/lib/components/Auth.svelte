@@ -3,7 +3,7 @@
 	//@ts-nocheck
 	import { authHandlers, authStore } from '$lib/stores/authStore';
 	import PasswordInput from './PasswordInput.svelte';
-	
+	import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 
 	export let register = false;
 	export let displayLoginValidator = false;
@@ -100,9 +100,6 @@
 		}
 	}
 
-
-
-	
 	async function handleForgotPassword() {
 		try {
 			await authHandlers.resetPassword(email);
@@ -271,9 +268,7 @@
 	{#if !forgotPassword}
 		<div class="mt-3 w-5/6">
 			<div class="mb-3 mt-1 flex items-center">
-				
 				<span class="px-2 text-xs font-bold">OR</span>
-				
 			</div>
 
 			<div class="mb-3 flex items-center justify-center">
@@ -283,8 +278,6 @@
 					<span class="text-center text-sm font-bold">Sign in with</span>
 				{/if}
 			</div>
-
-			
 		</div>
 	{/if}
 

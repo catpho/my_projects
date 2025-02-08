@@ -36,7 +36,7 @@ export const authHandlers = {
     login: async (email, password) => {
         await signInWithEmailAndPassword(auth, email, password);
     },
-    
+
     checkEmailExists: async (email) => {
         try {
             const signInMethods = await fetchSignInMethodsForEmail(auth, email);
@@ -92,6 +92,28 @@ export const authHandlers = {
     //displayName can be interchanged with photoURL
     updateProfile: async (displayName) => {
         await updateProfile(auth.currentUser, displayName);
+    },
+    changePassword: async (oldPassword, newPassword) => {
+        const user = auth.currentUser;
+
+        if (user) {
+            try {
+                // First, reauthenticate the user with their old password
+                const credential = EmailAuthProvider.credential(user.email, oldPassword);
+                await reauthenticateWithCredential(user, credential);
+
+                // Now, update the password
+                await updatePassword(user, newPassword);
+
+                // Optionally, return a success message or update the store
+                return { success: true, message: 'Password updated successfully' };
+            } catch (error) {
+                console.error('Error changing password:', error);
+                throw new Error('Password change failed: ' + error.message);
+            }
+        } else {
+            throw new Error('User not authenticated');
+        }
     }
 };
 

@@ -31,7 +31,6 @@
 		if (state?.currentUser?.uid) {
 			fetchPersonalNoteBoard(state.currentUser.uid);
 		}
-		userId = state?.currentUser?.uid;
 	});
 
 	async function fetchPersonalNoteBoard(userId) {
@@ -109,13 +108,6 @@
 	}
 </script>
 
-<!--FIXME: need to check if the notes are connected to one user at a time. then make sure the user is fetched through this page so can see the user name -->
-
-<!-- {#if $userStore.isLoading}
-	<p>Loading user data...</p>
-{:else if $userStore.currentUser}
-	<p>{$userStore.currentUser.displayName}'s Personal Dashboard</p>
-{/if} -->
 <div>Personal page</div>
 
 <button on:click={openModal}>Add New Note</button>

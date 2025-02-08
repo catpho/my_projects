@@ -50,11 +50,7 @@
 							>Logout</button
 						>
 
-						<button
-							type="button"
-							aria-label="Go to user profile"
-							on:click={() => goto('/userProfile')}
-						>
+						<a aria-label="userProfile" href="/userProfile">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
@@ -70,7 +66,7 @@
 								/>
 								<circle cx="12" cy="7" r="4" />
 							</svg>
-						</button>
+						</a>
 					{:else}
 						<button
 							on:click={() => {
@@ -93,6 +89,13 @@
 							type="button"
 							class="whitespace-nowrap rounded-lg px-6 py-2">Log In</button
 						>
+					{/if}
+				</li>
+
+				<li class="corner flex items-center gap-5 font-bold">
+					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
+					{#if email != undefined}
+						<a href="/privateDashboard">Home</a>
 					{/if}
 				</li>
 			</ul>

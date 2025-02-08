@@ -26,6 +26,51 @@ profile picture, look at any subscriptions I have for this app. -->
 	let personalNoteBoard;
 	let isEditing = false;
 
+	let showModal = false;
+	let oldPassword = '';
+	let newPassword = '';
+	let confirmNewPassword = '';
+	let passwordChangeMessage = '';
+	let isChangingPassword = false;
+	let displayPasswordValidator = false;
+
+	function openModal() {
+		showModal = true;
+	}
+
+	function closeModal() {
+		showModal = false;
+	}
+
+	async function handlePasswordChange() {
+		// Validation
+		if (!newPassword || !confirmNewPassword) {
+			passwordChangeMessage = 'Enter all the required details';
+			displayPasswordValidator = true;
+			console.log(passwordChangeMessage);
+			return;
+		}
+
+		if (newPassword !== confirmNewPassword) {
+			passwordChangeMessage = 'New passwords do not match';
+			displayPasswordValidator = true;
+			console.error(passwordChangeMessage);
+			return;
+		}
+
+		try {
+			isChangingPassword = true;
+			// Call the changePassword method from authHandlers
+			await authHandlers.updatePassword(newPassword);
+			displayPasswordValidator = false;
+		} catch (error) {
+			displayPasswordValidator = true;
+		} finally {
+			isChangingPassword = false;
+		}
+
+		closeModal();
+	}
 	authStore.subscribe((curr) => {
 		// If logged in with Google, use the photoURL from the provider
 		uid = curr?.currentUser?.uid;
@@ -37,6 +82,7 @@ profile picture, look at any subscriptions I have for this app. -->
 
 	userStore.subscribe((curr) => {
 		userData = curr?.currentUser;
+
 		displayName = curr?.currentUser?.displayName;
 		profileImage = curr?.currentUser?.profileImage;
 		birthDay = curr?.currentUser?.birthDay;
@@ -199,6 +245,53 @@ profile picture, look at any subscriptions I have for this app. -->
 		{/if}
 	</div>
 
+	{#if showModal}
+		<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+			<div class="w-96 rounded-lg bg-white p-6">
+				<form on:submit={handlePasswordChange}>
+					<!-- New Password -->
+					<div class="mb-4">
+						<label for="newPassword" class="block text-sm font-medium text-gray-700"
+							>New Password</label
+						>
+						<input
+							type="password"
+							id="newPassword"
+							bind:value={newPassword}
+							class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+
+					<!-- Confirm New Password -->
+					<div class="mb-4">
+						<label for="confirmNewPassword" class="block text-sm font-medium text-gray-700"
+							>Confirm New Password</label
+						>
+						<input
+							type="password"
+							id="confirmNewPassword"
+							bind:value={confirmNewPassword}
+							class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="flex items-center justify-between">
+						<button
+							type="button"
+							on:click={closeModal}
+							class="rounded bg-gray-500 px-4 py-2 text-white">Cancel</button
+						>
+						<button type="submit" class="rounded bg-blue-500 px-4 py-2 text-white"
+							>Change Password</button
+						>
+					</div>
+				</form>
+			</div>
+		</div>
+	{/if}
 	<div class="w-full justify-center text-center text-lg font-extrabold">
 		{#if isEditing}
 			{displayName}
@@ -209,8 +302,11 @@ profile picture, look at any subscriptions I have for this app. -->
 				on:change={handleBirthdateUpdate}
 				placeholder="Select your birthdate"
 			/>
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<div
 				class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
+				on:click={() => openModal()}
 			>
 				Change Password?
 			</div>
@@ -257,7 +353,7 @@ profile picture, look at any subscriptions I have for this app. -->
 		<div>
 			{#if personalNoteBoard && personalNoteBoard.length > 0}
 				{#each personalNoteBoard as personals}
-					<div>{personals}</div>
+					<div>{personals.title}</div>
 				{/each}
 			{:else}
 				There is no locked notes assigned to this user.
