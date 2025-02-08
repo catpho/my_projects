@@ -166,6 +166,21 @@ export const noteHandlers = {
                     throw new Error("You do not have permission to delete this note.");
                 }
                 await deleteDoc(noteRef);
+
+                const userRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    let userData = userDoc.data();
+                    let updatedPersonalNotes = userData.personalNoteBoard.filter(note => note.id !== noteId);
+
+                    // Update the user's personalNoteBoard in Firestore
+                    await updateDoc(userRef, { personalNoteBoard: updatedPersonalNotes });
+
+                    // Optionally, update the local personalNoteBoard state for UI update
+                    personalNoteBoard = updatedPersonalNotes;
+                }
+
                 await noteHandlers.getUserNotes(userId);
                 alert('Note successfully deleted.');
             } catch (error) {

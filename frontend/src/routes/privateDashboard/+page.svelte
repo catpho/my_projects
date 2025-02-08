@@ -73,7 +73,21 @@
 			noteData.tags = noteData.tags.split(',').map((tag) => tag.trim());
 		}
 		if (isEditing) {
-			await noteHandlers.updateNote(noteID, noteData, userId); // Use noteID for updating the note
+			await noteHandlers.updateNote(noteID, noteData, userId);
+
+			// If the access is changed to Public, remove it from personalNoteBoard
+			if (noteData.access === 'Public') {
+				personalNoteBoard = personalNoteBoard.filter((note) => note.id !== noteID);
+				await updateUserPersonalNotes();
+			}
+			// If the access is Private, and it wasn't already in the personal board, add it
+			else if (
+				noteData.access === 'Private' &&
+				!personalNoteBoard.some((note) => note.id === noteID)
+			) {
+				personalNoteBoard = [...personalNoteBoard, noteData];
+				await updateUserPersonalNotes();
+			}
 		} else {
 			await noteHandlers.createNote(noteData, userId);
 
