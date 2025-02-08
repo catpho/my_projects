@@ -1,12 +1,15 @@
 <script>
 	//@ts-nocheck
-	import { onMount } from 'svelte';
+
 	import { userStore } from '$lib/stores/userStore';
 	import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	import { authStore } from '$lib/stores/authStore';
+	import { doc, getDoc, updateDoc } from 'firebase/firestore';
+	import { db } from '$lib/firebase/firebase.client';
 
 	let userData = null;
 	$: notes = [];
+	let personalNoteBoard = [];
 	let userId = null;
 	let showModal = false;
 	let isEditing = false;
@@ -25,9 +28,27 @@
 	});
 
 	userStore.subscribe((state) => {
+		if (state?.currentUser?.uid) {
+			fetchPersonalNoteBoard(state.currentUser.uid);
+		}
 		userId = state?.currentUser?.uid;
 	});
 
+	async function fetchPersonalNoteBoard(userId) {
+		try {
+			await noteHandlers.getUserNotes(userId);
+			// Filter only private notes from the global notes store
+			personalNoteBoard = notes.filter((note) => note.access === 'Private');
+		} catch (error) {
+			console.error('Error fetching personal notes:', error);
+		}
+	}
+	async function updateUserPersonalNotes() {
+		if (!userId) return;
+
+		const userRef = doc(db, 'users', userId);
+		await updateDoc(userRef, { personalNoteBoard });
+	}
 	function openModal() {
 		showModal = true;
 	}
@@ -55,6 +76,11 @@
 			await noteHandlers.updateNote(noteID, noteData, userId); // Use noteID for updating the note
 		} else {
 			await noteHandlers.createNote(noteData, userId);
+
+			if (noteData.access == 'Private') {
+				personalNoteBoard = [...personalNoteBoard, noteData];
+				await updateUserPersonalNotes();
+			}
 		}
 
 		closeModal();
@@ -110,7 +136,7 @@
 		{/each}
 	</div>
 {:else}
-	<div>user has no notes</div>
+	<div>User has no notes.</div>
 {/if}
 
 {#if showModal}

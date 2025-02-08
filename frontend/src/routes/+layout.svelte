@@ -82,6 +82,7 @@
 							biography: '',
 							personalNoteBoard: [],
 							collaborators: [],
+							birthday: '',
 							createAt: new Date().toISOString(),
 							lastActive: new Date().toISOString(),
 							isPublic: false

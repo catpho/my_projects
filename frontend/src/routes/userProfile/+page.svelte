@@ -21,6 +21,9 @@ profile picture, look at any subscriptions I have for this app. -->
 	let uid;
 	let displayName;
 	let userData;
+	let birthDay;
+	let collaborators;
+	let personalNoteBoard;
 	let isEditing = false;
 
 	authStore.subscribe((curr) => {
@@ -36,6 +39,9 @@ profile picture, look at any subscriptions I have for this app. -->
 		userData = curr?.currentUser;
 		displayName = curr?.currentUser?.displayName;
 		profileImage = curr?.currentUser?.profileImage;
+		birthDay = curr?.currentUser?.birthDay;
+		collaborators = curr?.currentUser?.collaborators;
+		personalNoteBoard = curr?.currentUser?.personalNoteBoard;
 		// console.log('Header: profileImage', profileImage);
 	});
 
@@ -103,7 +109,26 @@ profile picture, look at any subscriptions I have for this app. -->
 			}
 		);
 	}
-
+	//do we need to have the year input included?
+	async function handleBirthdateUpdate() {
+		if (!birthDay || !uid) {
+			error = 'No birthdate provided or user is not authenticated.';
+			return;
+		}
+		try {
+			const userRef = doc(db, 'users', uid);
+			await setDoc(
+				userRef,
+				{
+					birthDay: birthDay
+				},
+				{ merge: true }
+			);
+		} catch (err) {
+			console.error('Error updating birthday:', err);
+			error = 'Error updating birthday. Please try again.';
+		}
+	}
 	function replaceImage(event) {
 		profileImage = event.target.files[0];
 		handleImageUpload();
@@ -175,22 +200,48 @@ profile picture, look at any subscriptions I have for this app. -->
 	</div>
 
 	<div class="w-full justify-center text-center text-lg font-extrabold">
-		{displayName}
-		<br />
-		Birthday here
 		{#if isEditing}
+			{displayName}
+			<br />
+			<input
+				type="date"
+				bind:value={birthDay}
+				on:change={handleBirthdateUpdate}
+				placeholder="Select your birthdate"
+			/>
 			<div
 				class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
 			>
 				Change Password?
 			</div>
+		{:else}
+			{displayName}
+			<br />
+			{#if birthDay}
+				{new Date(birthDay).toLocaleDateString('en-US', {
+					year: 'numeric',
+					month: 'long',
+					day: '2-digit'
+				})}
+			{:else}
+				No birthdate set
+			{/if}
 		{/if}
 	</div>
 
 	<hr class="my-4 w-3/4 border-t border-gray-300" />
 	<div class="justify-left my-4 w-3/4">
 		<div class="w-full text-lg font-extrabold">Collaborators</div>
-		<div>List here</div>
+		<div>
+			{#if collaborators && collaborators.length > 0}
+				{#each collaborators as collaborator}
+					<div>{collaborator}</div>
+				{/each}
+			{:else}
+				No current collaborators present.
+			{/if}
+		</div>
+
 		{#if isEditing}
 			<div
 				class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
@@ -203,6 +254,14 @@ profile picture, look at any subscriptions I have for this app. -->
 	<hr class="my-4 w-3/4 border-t border-gray-300" />
 	<div class="justify-left my-4 w-3/4">
 		<div class="w-full text-lg font-extrabold">Locked Notes</div>
-		<div>List here</div>
+		<div>
+			{#if personalNoteBoard && personalNoteBoard.length > 0}
+				{#each personalNoteBoard as personals}
+					<div>{personals}</div>
+				{/each}
+			{:else}
+				There is no locked notes assigned to this user.
+			{/if}
+		</div>
 	</div>
 </div>
