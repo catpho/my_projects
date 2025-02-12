@@ -6,6 +6,7 @@
 	import { authStore } from '$lib/stores/authStore';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import { db } from '$lib/firebase/firebase.client';
+	import { Search } from 'flowbite-svelte';
 
 	let userData = null;
 	$: notes = [];
@@ -108,42 +109,74 @@
 	}
 </script>
 
-<div>Personal page</div>
+<Search class="bg-white" placeholder="Search notes..."></Search>
 
-<button on:click={openModal}>Add New Note</button>
 {#if notes.length > 0}
-	<div class="notes-list">
+	<div class="mt-5">
 		{#each notes as note}
-			<div class="note-item">
-				<h3>{note.title}</h3>
+			<div class=" mb-5 w-2/4 rounded-2xl bg-white p-4">
+				<div class="mb-5 flex justify-between font-bold">
+					<h3>{note.title}</h3>
+					<span class="text-2xl text-gray-500">...</span>
+				</div>
 				<p>{note.content}</p>
 				<ul>
 					{#each note.tags as tag}
 						<li>{tag}</li>
 					{/each}
 				</ul>
-				<p><strong>Access:</strong> {note.access}</p>
+				<!-- <p><strong>Access:</strong> {note.access}</p> -->
 				<p>
-					<strong>Created At:</strong>
 					{note.noteCreatedAt
-						? new Date(note.noteCreatedAt.seconds * 1000).toLocaleString()
+						? (() => {
+								const date = new Date(note.noteCreatedAt.seconds * 1000);
+								return `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${date.toLocaleDateString(
+									'en-GB',
+									{
+										day: '2-digit',
+										month: 'long',
+										year: '2-digit'
+									}
+								)}`;
+							})()
 						: 'N/A'}
 				</p>
-				<p>
+				<!-- <p>
 					<strong>Last Updated:</strong>
 					{note.lastUpdated ? new Date(note.lastUpdated.seconds * 1000).toLocaleString() : 'N/A'}
-				</p>
+				</p> -->
 
-				<button class="edit-btn" on:click={() => handleEditNote(note)}>✏️ Edit</button>
+				<!-- <button class="edit-btn" on:click={() => handleEditNote(note)}>✏️ Edit</button>
 				<button class="delete-btn" on:click={() => noteHandlers.deleteNote(note.id, userId)}
 					>🗑️ Delete</button
-				>
+				> -->
 			</div>
 		{/each}
 	</div>
 {:else}
 	<div>User has no notes.</div>
 {/if}
+
+<!-- svelte-ignore a11y_consider_explicit_label -->
+<button class="flex items-center justify-center rounded-full bg-white p-5" on:click={openModal}>
+	<svg
+		class="h-6 w-6 text-gray-800 dark:text-white"
+		aria-hidden="true"
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		fill="none"
+		viewBox="0 0 24 24"
+	>
+		<path
+			stroke="currentColor"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			stroke-width="2"
+			d="m4.988 19.012 5.41-5.41m2.366-6.424 4.058 4.058-2.03 5.41L5.3 20 4 18.701l3.355-9.494 5.41-2.029Zm4.626 4.625L12.197 6.61 14.807 4 20 9.194l-2.61 2.61Z"
+		/>
+	</svg>
+</button>
 
 {#if showModal}
 	<div class="modal">
@@ -215,61 +248,10 @@
 	}
 
 	button {
-		padding: 10px;
-		margin-top: 10px;
-		width: 100%;
-		background-color: #4caf50;
-		color: white;
-		border: none;
-		border-radius: 4px;
 		cursor: pointer;
 	}
 
 	button:hover {
-		background-color: #45a049;
-	}
-
-	.notes-list {
-		margin-top: 20px;
-	}
-
-	.note-item {
-		background-color: #f9f9f9;
-		padding: 15px;
-		margin-bottom: 20px;
-		border-radius: 5px;
-		border: 1px solid #ddd;
-	}
-
-	.note-item h3 {
-		margin-top: 0;
-	}
-
-	.note-item ul {
-		list-style-type: none;
-		padding: 0;
-	}
-
-	.note-item ul li {
-		display: inline-block;
-		margin-right: 5px;
-		background-color: #e0e0e0;
-		padding: 5px;
-		border-radius: 3px;
-	}
-
-	.edit-btn,
-	.delete-btn {
-		background: none;
-		border: none;
-		color: #333;
-		font-size: 18px;
-		cursor: pointer;
-		margin-left: 10px;
-	}
-
-	.edit-btn:hover,
-	.delete-btn:hover {
-		color: #4caf50;
+		background-color: #457da0;
 	}
 </style>

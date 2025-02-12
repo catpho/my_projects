@@ -207,7 +207,11 @@ profile picture, look at any subscriptions I have for this app. -->
 </script>
 
 <div class="flex w-full flex-col items-center gap-4">
-	<div class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>Edit</div>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div aria-label="toggleEdit" class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>
+		Edit
+	</div>
 	<div class=" flex w-full items-center justify-center">
 		{#if imageUrl}
 			{#if isEditing}
@@ -249,7 +253,6 @@ profile picture, look at any subscriptions I have for this app. -->
 		<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
 			<div class="w-96 rounded-lg bg-white p-6">
 				<form on:submit={handlePasswordChange}>
-					<!-- New Password -->
 					<div class="mb-4">
 						<label for="newPassword" class="block text-sm font-medium text-gray-700"
 							>New Password</label
@@ -263,7 +266,6 @@ profile picture, look at any subscriptions I have for this app. -->
 						/>
 					</div>
 
-					<!-- Confirm New Password -->
 					<div class="mb-4">
 						<label for="confirmNewPassword" class="block text-sm font-medium text-gray-700"
 							>Confirm New Password</label
@@ -277,7 +279,6 @@ profile picture, look at any subscriptions I have for this app. -->
 						/>
 					</div>
 
-					<!-- Action Buttons -->
 					<div class="flex items-center justify-between">
 						<button
 							type="button"

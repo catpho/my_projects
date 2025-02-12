@@ -5,15 +5,24 @@
 	import { authStore, authHandlers } from '$lib/stores/authStore';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { userStore } from '$lib/stores/userStore';
+	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 	let email;
 	let uid;
+	let profileImage;
+	let imageUrl = '';
 	export let register;
 
 	authStore.subscribe((curr) => {
 		console.log('CURR', curr);
 		email = curr?.currentUser?.email;
 		uid = curr?.currentUser?.uid;
+	});
+
+	userStore.subscribe((curr) => {
+		uid = curr?.currentUser?.uid;
+		profileImage = curr?.currentUser?.profileImage;
 	});
 
 	$: {
@@ -33,12 +42,34 @@
 		});
 	};
 
-	onMount(() => {
-		// searchStore.useLocalStorage();
+	onMount(async () => {
+		if (uid) {
+			const storage = getStorage();
+			const storageRef = ref(storage, `profile_images/${uid}`);
+
+			try {
+				// Attempt to fetch the user's custom profile image from Firebase Storage
+				// expect an error 404 if the image does not exist, this will then default to google
+				imageUrl = await getDownloadURL(storageRef);
+			} catch (err) {
+				// Check if the error is specifically due to the object not being found
+				if (err.code === 'storage/object-not-found') {
+					// Fallback to Google profile image or default image without logging an error
+					imageUrl = googleProfileImageUrl || UploadYourPhotoImage;
+				} else {
+					// Log only critical errors and fallback to a default image
+					console.error('Unexpected error fetching profile image:', err);
+					imageUrl = UploadYourPhotoImage; // Fallback image
+				}
+			}
+		}
+
+		// console.log('this is the image url', imageUrl);
 	});
 	//update
 </script>
 
+<!-- make it so the profile pic is the all destination -->
 <header class="font-tanaegean flex h-20 w-full items-center justify-between bg-white">
 	<div class="app flex w-full flex-row items-center justify-between">
 		<nav class="flex flex-row items-center justify-center gap-10 rounded-full bg-white">
@@ -51,21 +82,30 @@
 						>
 
 						<a aria-label="userProfile" href="/userProfile">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="h-6 w-6"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M12 14c4 0 6 2 6 4v2H6v-2c0-2 2-4 6-4z"
+							{#if imageUrl != null}
+								<img
+									class=" display-flex h-10 w-10 rounded-full"
+									src={imageUrl}
+									alt="Profile"
+									referrerPolicy="no-referrer"
 								/>
-								<circle cx="12" cy="7" r="4" />
-							</svg>
+							{:else}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke-width="2"
+									stroke="currentColor"
+									class="h-6 w-6"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 14c4 0 6 2 6 4v2H6v-2c0-2 2-4 6-4z"
+									/>
+									<circle cx="12" cy="7" r="4" />
+								</svg>
+							{/if}
 						</a>
 					{:else}
 						<button
