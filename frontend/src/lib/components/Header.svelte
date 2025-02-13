@@ -8,10 +8,13 @@
 	import { userStore } from '$lib/stores/userStore';
 	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+	let showDropdown = false;
+
 	let email;
 	let uid;
 	let profileImage;
 	let imageUrl = '';
+
 	export let register;
 
 	authStore.subscribe((curr) => {
@@ -42,6 +45,13 @@
 		});
 	};
 
+	const goHome = () => {
+		goto('/privateDashboard'); // Navigate to home page
+	};
+
+	const goProfile = () => {
+		goto('/userProfile'); // Navigate to user profile
+	};
 	onMount(async () => {
 		if (uid) {
 			const storage = getStorage();
@@ -74,14 +84,24 @@
 	<div class="app flex w-full flex-row items-center justify-between">
 		<nav class="flex flex-row items-center justify-center gap-10 rounded-full bg-white">
 			<ul>
-				<li class="corner flex items-center gap-5 font-bold">
+				<!-- <li class="corner flex items-center gap-5 font-bold">
+					
+					{#if email != undefined}
+						<a href="/privateDashboard">Home</a>
+					{/if}
+				</li> -->
+				<li class=" flex items-center gap-5 font-bold">
 					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
 					{#if email != undefined}
-						<button type="button" class="whitespace-nowrap rounded-lg px-6 py-2" on:click={logout}
+						<!-- <button type="button" class="whitespace-nowrap rounded-lg px-6 py-2" on:click={logout}
 							>Logout</button
-						>
+						> -->
 
-						<a aria-label="userProfile" href="/userProfile">
+						<a
+							aria-label="userProfile"
+							href="javascript:void(0);"
+							on:click={() => (showDropdown = !showDropdown)}
+						>
 							{#if imageUrl != null}
 								<img
 									class=" display-flex h-10 w-10 rounded-full"
@@ -131,16 +151,24 @@
 						>
 					{/if}
 				</li>
-
-				<li class="corner flex items-center gap-5 font-bold">
-					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
-					{#if email != undefined}
-						<a href="/privateDashboard">Home</a>
-					{/if}
-				</li>
 			</ul>
 		</nav>
 	</div>
+	{#if showDropdown}
+		<div class="absolute right-0 mt-2 w-48 rounded border bg-white shadow-lg">
+			<ul class="p-2">
+				<li>
+					<button on:click={goHome} class="w-full px-4 py-2 text-left">Go to Home</button>
+				</li>
+				<li>
+					<button on:click={goProfile} class="w-full px-4 py-2 text-left">Go to Profile</button>
+				</li>
+				<li>
+					<button on:click={logout} class="w-full px-4 py-2 text-left text-red-500">Logout</button>
+				</li>
+			</ul>
+		</div>
+	{/if}
 </header>
 
 <style>

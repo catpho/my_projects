@@ -7,6 +7,12 @@
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import { db } from '$lib/firebase/firebase.client';
 	import { Search } from 'flowbite-svelte';
+	import { fade } from 'svelte/transition';
+
+	let expanded = false;
+	function toggleExpand() {
+		expanded = !expanded;
+	}
 
 	let userData = null;
 	$: notes = [];
@@ -109,12 +115,12 @@
 	}
 </script>
 
-<Search class="bg-white" placeholder="Search notes..."></Search>
+<Search class="flex bg-white" placeholder="Search notes..."></Search>
 
 {#if notes.length > 0}
 	<div class="mt-5">
 		{#each notes as note}
-			<div class=" mb-5 w-2/4 rounded-2xl bg-white p-4">
+			<div class=" mb-5 rounded-2xl bg-white p-4">
 				<div class="mb-5 flex justify-between font-bold">
 					<h3>{note.title}</h3>
 					<span class="text-2xl text-gray-500">...</span>
@@ -158,7 +164,7 @@
 {/if}
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
-<button class="flex items-center justify-center rounded-full bg-white p-5" on:click={openModal}>
+<!-- <button class="flex items-center justify-center rounded-full bg-white p-5" on:click={openModal}>
 	<svg
 		class="h-6 w-6 text-gray-800 dark:text-white"
 		aria-hidden="true"
@@ -176,7 +182,7 @@
 			d="m4.988 19.012 5.41-5.41m2.366-6.424 4.058 4.058-2.03 5.41L5.3 20 4 18.701l3.355-9.494 5.41-2.029Zm4.626 4.625L12.197 6.61 14.807 4 20 9.194l-2.61 2.61Z"
 		/>
 	</svg>
-</button>
+</button> -->
 
 {#if showModal}
 	<div class="modal">
@@ -211,6 +217,99 @@
 		</div>
 	</div>
 {/if}
+
+<div class="flex items-center justify-center">
+	<div
+		class="flex items-center rounded-full bg-[#282828] px-1 py-2 transition-all duration-300"
+		class:w-[50px]={!expanded}
+		class:w-[300px]={expanded}
+	>
+		<button
+			class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow-xl transition duration-200"
+			on:click={toggleExpand}
+		>
+			<span class={expanded ? 'text-red-500' : 'text-blue-500'}>
+				{expanded ? '×' : '+'}
+			</span>
+		</button>
+
+		{#if expanded}
+			<!-- Buttons Appear Horizontally -->
+			<span class="ml-3 text-white">Add Note</span>
+			<div class="ml-auto flex flex-row items-center" transition:fade={{ duration: 300 }}>
+				<!-- svelte-ignore a11y_consider_explicit_label -->
+				<button
+					class="mr-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow-xl"
+					on:click={openModal}
+					><svg
+						class="h-6 w-6 text-gray-800 dark:text-white"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="1"
+							d="m4.988 19.012 5.41-5.41m2.366-6.424 4.058 4.058-2.03 5.41L5.3 20 4 18.701l3.355-9.494 5.41-2.029Zm4.626 4.625L12.197 6.61 14.807 4 20 9.194l-2.61 2.61Z"
+						/>
+					</svg></button
+				>
+				<!-- svelte-ignore a11y_consider_explicit_label -->
+				<button
+					class="mr-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow-xl"
+					><svg
+						class="h-6 w-6 text-gray-800 dark:text-white"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="1"
+							d="M19 9v3a5.006 5.006 0 0 1-5 5h-4a5.006 5.006 0 0 1-5-5V9m7 9v3m-3 0h6M11 3h2a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"
+						/>
+					</svg>
+				</button>
+				<!-- svelte-ignore a11y_consider_explicit_label -->
+				<button
+					class="mr-2 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white shadow-xl"
+					><svg
+						class="h-6 w-6 text-gray-800 dark:text-white"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linejoin="round"
+							stroke-width="1"
+							d="M4 18V8a1 1 0 0 1 1-1h1.5l1.707-1.707A1 1 0 0 1 8.914 5h6.172a1 1 0 0 1 .707.293L17.5 7H19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"
+						/>
+						<path
+							stroke="currentColor"
+							stroke-linejoin="round"
+							stroke-width="1"
+							d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+						/>
+					</svg>
+				</button>
+			</div>
+		{/if}
+	</div>
+</div>
 
 <style>
 	.modal {
