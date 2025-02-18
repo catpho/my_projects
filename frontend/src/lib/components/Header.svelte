@@ -15,6 +15,9 @@
 	let profileImage;
 	let imageUrl = '';
 
+	let pathname;
+	$: pathname = $page.url.pathname;
+
 	export let register;
 
 	authStore.subscribe((curr) => {
@@ -80,16 +83,13 @@
 </script>
 
 <!-- make it so the profile pic is the all destination -->
-<header class="font-tanaegean flex h-20 w-full items-center justify-between bg-white">
+<header class=" font-tanaegean flex h-20 w-full items-center justify-between bg-white p-5">
 	<div class="app flex w-full flex-row items-center justify-between">
-		<nav class="flex flex-row items-center justify-center gap-10 rounded-full bg-white">
+		{#if pathname === '/privateDashboard'}
+			<h1 class="mr-auto items-center text-lg font-bold">My Notes</h1>
+		{/if}
+		<nav class="ml-auto flex flex-row items-center justify-center gap-10 rounded-full bg-white">
 			<ul>
-				<!-- <li class="corner flex items-center gap-5 font-bold">
-					
-					{#if email != undefined}
-						<a href="/privateDashboard">Home</a>
-					{/if}
-				</li> -->
 				<li class=" flex items-center gap-5 font-bold">
 					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
 					{#if email != undefined}
@@ -97,11 +97,8 @@
 							>Logout</button
 						> -->
 
-						<a
-							aria-label="userProfile"
-							href="javascript:void(0);"
-							on:click={() => (showDropdown = !showDropdown)}
-						>
+						<!-- svelte-ignore a11y_invalid_attribute -->
+						<a aria-label="userProfile" href="" on:click={() => (showDropdown = !showDropdown)}>
 							{#if imageUrl != null}
 								<img
 									class=" display-flex h-10 w-10 rounded-full"
