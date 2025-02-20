@@ -23,7 +23,7 @@ profile picture, look at any subscriptions I have for this app. -->
 	let userData;
 	let birthDay;
 	let collaborators;
-	let myNotes;
+	let myNotes = [];
 	let isEditing = false;
 
 	let showModal = false;
@@ -206,159 +206,163 @@ profile picture, look at any subscriptions I have for this app. -->
 	});
 </script>
 
-<div class="flex w-full flex-col items-center gap-4">
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div aria-label="toggleEdit" class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>
-		Edit
-	</div>
-	<div class=" flex w-full items-center justify-center">
-		{#if imageUrl}
-			{#if isEditing}
-				<label for="imageReplacement" class="flex flex-col items-center gap-4">
-					<img
-						class="aspect-square h-[250px] w-[250px] cursor-pointer rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
-						src={imageUrl}
-						alt="Profile"
-						referrerPolicy="no-referrer"
-					/>
+<div class="relative flex h-screen flex-col">
+	<div class="absolute min-h-full w-full bg-red-400">
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div aria-label="toggleEdit" class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>
+			Edit
+		</div>
+		<div class="relative flex w-full flex-col items-center gap-4 p-4">
+			<div class=" flex w-full items-center justify-center">
+				{#if imageUrl}
+					{#if isEditing}
+						<label for="imageReplacement" class="flex flex-col items-center gap-4">
+							<img
+								class="aspect-square h-[250px] w-[250px] cursor-pointer rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
+								src={imageUrl}
+								alt="Profile"
+								referrerPolicy="no-referrer"
+							/>
 
+							<input
+								id="imageReplacement"
+								type="file"
+								class="block"
+								accept="image/*"
+								on:change={replaceImage}
+							/>
+						</label>
+					{:else}
+						<!-- Image is not clickable when isEditing is false -->
+						<img
+							class="aspect-square h-[250px] w-[250px] rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
+							src={imageUrl}
+							alt="Profile"
+							referrerPolicy="no-referrer"
+						/>
+					{/if}
+				{:else}
+					<input type="file" accept="image/*" on:change={replaceImage} />
+				{/if}
+
+				{#if error}
+					<p class="text-center text-sm text-red-500 sm:text-xs">{error}</p>
+				{/if}
+			</div>
+
+			{#if showModal}
+				<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+					<div class="w-96 rounded-lg bg-white p-6">
+						<form on:submit={handlePasswordChange}>
+							<div class="mb-4">
+								<label for="newPassword" class="block text-sm font-medium text-gray-700"
+									>New Password</label
+								>
+								<input
+									type="password"
+									id="newPassword"
+									bind:value={newPassword}
+									class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+									required
+								/>
+							</div>
+
+							<div class="mb-4">
+								<label for="confirmNewPassword" class="block text-sm font-medium text-gray-700"
+									>Confirm New Password</label
+								>
+								<input
+									type="password"
+									id="confirmNewPassword"
+									bind:value={confirmNewPassword}
+									class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+									required
+								/>
+							</div>
+
+							<div class="flex items-center justify-between">
+								<button
+									type="button"
+									on:click={closeModal}
+									class="rounded bg-gray-500 px-4 py-2 text-white">Cancel</button
+								>
+								<button type="submit" class="rounded bg-blue-500 px-4 py-2 text-white"
+									>Change Password</button
+								>
+							</div>
+						</form>
+					</div>
+				</div>
+			{/if}
+			<div class="w-full justify-center text-center text-lg font-extrabold">
+				{#if isEditing}
+					{displayName}
+					<br />
 					<input
-						id="imageReplacement"
-						type="file"
-						class="block"
-						accept="image/*"
-						on:change={replaceImage}
+						type="date"
+						bind:value={birthDay}
+						on:change={handleBirthdateUpdate}
+						placeholder="Select your birthdate"
 					/>
-				</label>
-			{:else}
-				<!-- Image is not clickable when isEditing is false -->
-				<img
-					class="aspect-square h-[250px] w-[250px] rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
-					src={imageUrl}
-					alt="Profile"
-					referrerPolicy="no-referrer"
-				/>
-			{/if}
-		{:else}
-			<input type="file" accept="image/*" on:change={replaceImage} />
-		{/if}
-
-		{#if error}
-			<p class="text-center text-sm text-red-500 sm:text-xs">{error}</p>
-		{/if}
-	</div>
-
-	{#if showModal}
-		<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-			<div class="w-96 rounded-lg bg-white p-6">
-				<form on:submit={handlePasswordChange}>
-					<div class="mb-4">
-						<label for="newPassword" class="block text-sm font-medium text-gray-700"
-							>New Password</label
-						>
-						<input
-							type="password"
-							id="newPassword"
-							bind:value={newPassword}
-							class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-							required
-						/>
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<div
+						class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
+						on:click={() => openModal()}
+					>
+						Change Password?
 					</div>
+				{:else}
+					{displayName}
+					<br />
+					{#if birthDay}
+						{new Date(birthDay).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: '2-digit'
+						})}
+					{:else}
+						No birthdate set
+					{/if}
+				{/if}
+			</div>
 
-					<div class="mb-4">
-						<label for="confirmNewPassword" class="block text-sm font-medium text-gray-700"
-							>Confirm New Password</label
-						>
-						<input
-							type="password"
-							id="confirmNewPassword"
-							bind:value={confirmNewPassword}
-							class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-							required
-						/>
+			<hr class="my-4 w-3/4 border-t border-gray-300" />
+			<div class="justify-left my-4 w-3/4">
+				<div class="w-full text-lg font-extrabold">Collaborators</div>
+				<div>
+					{#if collaborators && collaborators.length > 0}
+						{#each collaborators as collaborator}
+							<div>{collaborator}</div>
+						{/each}
+					{:else}
+						No current collaborators present.
+					{/if}
+				</div>
+
+				{#if isEditing}
+					<div
+						class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
+					>
+						+add a User
 					</div>
-
-					<div class="flex items-center justify-between">
-						<button
-							type="button"
-							on:click={closeModal}
-							class="rounded bg-gray-500 px-4 py-2 text-white">Cancel</button
-						>
-						<button type="submit" class="rounded bg-blue-500 px-4 py-2 text-white"
-							>Change Password</button
-						>
-					</div>
-				</form>
+				{/if}
 			</div>
-		</div>
-	{/if}
-	<div class="w-full justify-center text-center text-lg font-extrabold">
-		{#if isEditing}
-			{displayName}
-			<br />
-			<input
-				type="date"
-				bind:value={birthDay}
-				on:change={handleBirthdateUpdate}
-				placeholder="Select your birthdate"
-			/>
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<div
-				class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
-				on:click={() => openModal()}
-			>
-				Change Password?
+
+			<hr class="my-4 w-3/4 border-t border-gray-300" />
+			<div class="justify-left my-4 w-3/4">
+				<div class="w-full text-lg font-extrabold">Locked Notes</div>
+				<div>
+					{#if myNotes && myNotes.length > 0}
+						{#each myNotes as personals}
+							<div>{personals.title}</div>
+						{/each}
+					{:else}
+						There is no locked notes assigned to this user.
+					{/if}
+				</div>
 			</div>
-		{:else}
-			{displayName}
-			<br />
-			{#if birthDay}
-				{new Date(birthDay).toLocaleDateString('en-US', {
-					year: 'numeric',
-					month: 'long',
-					day: '2-digit'
-				})}
-			{:else}
-				No birthdate set
-			{/if}
-		{/if}
-	</div>
-
-	<hr class="my-4 w-3/4 border-t border-gray-300" />
-	<div class="justify-left my-4 w-3/4">
-		<div class="w-full text-lg font-extrabold">Collaborators</div>
-		<div>
-			{#if collaborators && collaborators.length > 0}
-				{#each collaborators as collaborator}
-					<div>{collaborator}</div>
-				{/each}
-			{:else}
-				No current collaborators present.
-			{/if}
-		</div>
-
-		{#if isEditing}
-			<div
-				class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
-			>
-				+add a User
-			</div>
-		{/if}
-	</div>
-
-	<hr class="my-4 w-3/4 border-t border-gray-300" />
-	<div class="justify-left my-4 w-3/4">
-		<div class="w-full text-lg font-extrabold">Locked Notes</div>
-		<div>
-			{#if myNotes && myNotes.length > 0}
-				{#each myNotes as personals}
-					<div>{personals.title}</div>
-				{/each}
-			{:else}
-				There is no locked notes assigned to this user.
-			{/if}
 		</div>
 	</div>
 </div>
