@@ -100,7 +100,7 @@
 						<Dropdown triggeredBy="#user-drop">
 							<DropdownHeader>
 								<span class="block text-sm">{displayName}</span>
-								<span class="block truncate text-sm font-medium">name@flowbite.com</span>
+								<span class="block truncate text-sm font-medium">{email}</span>
 							</DropdownHeader>
 							<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
 							<DropdownItem on:click={goProfile}>Settings</DropdownItem>
