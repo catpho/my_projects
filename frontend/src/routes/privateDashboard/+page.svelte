@@ -125,7 +125,7 @@
 						>
 							<div class="mb-5 flex items-start justify-between font-bold">
 								<h3 class="line-clamp-1">{note.title}</h3>
-								<span class="text-2xl text-gray-500">...</span>
+								<span class=" text-2xl text-gray-500">...</span>
 							</div>
 							<p>{note.content}</p>
 							<ul>
@@ -138,14 +138,17 @@
 								{note.noteCreatedAt
 									? (() => {
 											const date = new Date(note.noteCreatedAt.seconds * 1000);
-											return `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${date.toLocaleDateString(
-												'en-GB',
-												{
-													day: '2-digit',
-													month: 'long',
-													year: '2-digit'
-												}
-											)}`;
+											const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+											const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
+
+											// Shorten weekday and month unless the month has exactly four letters
+											const shortWeekday = fullWeekday.slice(0, 3);
+											const shortMonth = fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
+
+											// Format the correct order: "Thu, 20 Feb 25"
+											return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
+												day: '2-digit'
+											})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
 										})()
 									: 'N/A'}
 							</p>
@@ -167,14 +170,17 @@
 								{note.noteCreatedAt
 									? (() => {
 											const date = new Date(note.noteCreatedAt.seconds * 1000);
-											return `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${date.toLocaleDateString(
-												'en-GB',
-												{
-													day: '2-digit',
-													month: 'long',
-													year: '2-digit'
-												}
-											)}`;
+											const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+											const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
+
+											// Shorten weekday and month unless the month has exactly four letters
+											const shortWeekday = fullWeekday.slice(0, 3);
+											const shortMonth = fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
+
+											// Format the correct order: "Thu, 20 Feb 25"
+											return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
+												day: '2-digit'
+											})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
 										})()
 									: 'N/A'}
 							</p>
