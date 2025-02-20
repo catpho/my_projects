@@ -8,7 +8,7 @@ profile picture, look at any subscriptions I have for this app. -->
 	import { setDoc, doc } from 'firebase/firestore';
 	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 	import { onMount } from 'svelte';
-
+	import { Avatar } from 'flowbite-svelte';
 	import loadImage from 'blueimp-load-image';
 	import { userHandlers, userStore } from '$lib/stores/userStore';
 
@@ -207,7 +207,7 @@ profile picture, look at any subscriptions I have for this app. -->
 </script>
 
 <div class="relative flex h-screen flex-col">
-	<div class="absolute min-h-full w-full bg-red-400">
+	<div class="absolute flex min-h-full min-w-full bg-red-400">
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div aria-label="toggleEdit" class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>
@@ -218,12 +218,7 @@ profile picture, look at any subscriptions I have for this app. -->
 				{#if imageUrl}
 					{#if isEditing}
 						<label for="imageReplacement" class="flex flex-col items-center gap-4">
-							<img
-								class="aspect-square h-[250px] w-[250px] cursor-pointer rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
-								src={imageUrl}
-								alt="Profile"
-								referrerPolicy="no-referrer"
-							/>
+							<Avatar size="xl" src={imageUrl} />
 
 							<input
 								id="imageReplacement"
@@ -235,12 +230,8 @@ profile picture, look at any subscriptions I have for this app. -->
 						</label>
 					{:else}
 						<!-- Image is not clickable when isEditing is false -->
-						<img
-							class="aspect-square h-[250px] w-[250px] rounded-lg object-cover sm:h-[200px] sm:w-[200px] md:h-[150px] md:w-[150px]"
-							src={imageUrl}
-							alt="Profile"
-							referrerPolicy="no-referrer"
-						/>
+
+						<Avatar size="xl" src={imageUrl} />
 					{/if}
 				{:else}
 					<input type="file" accept="image/*" on:change={replaceImage} />

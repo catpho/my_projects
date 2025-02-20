@@ -113,8 +113,8 @@
 	}
 </script>
 
-<div class="relative min-h-screen">
-	<div class="absolute min-h-full">
+<div class="relative min-h-screen bg-red-400">
+	<div class="absolute min-h-full w-full">
 		<Search class="flex rounded-2xl border-none bg-white " placeholder="Search notes..."></Search>
 		{#if notes.length > 0}
 			<div class=" mt-5 flex grid h-full grid-cols-2 flex-col gap-4">

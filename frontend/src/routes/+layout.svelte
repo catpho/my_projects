@@ -112,29 +112,15 @@
 	});
 </script>
 
-<div class="flex h-screen w-full flex-col bg-[#F8F8FA]">
+<!-- use this as bg later bg-[#F8F8FA] -->
+<div class="flex flex-grow flex-col bg-blue-500">
 	{#if userId}
 		<Header />
 	{/if}
-	<main class=" mx-auto flex h-full w-full max-w-[64rem] flex-col p-1">
+	<main class=" mx-auto flex h-full w-full flex-grow flex-col p-1">
 		<slot></slot>
 	</main>
-
-	<footer></footer>
 </div>
 
 <style>
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
-	}
 </style>
