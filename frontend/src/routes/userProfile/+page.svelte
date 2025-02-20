@@ -23,7 +23,7 @@ profile picture, look at any subscriptions I have for this app. -->
 	let userData;
 	let birthDay;
 	let collaborators;
-	let personalNoteBoard;
+	let myNotes;
 	let isEditing = false;
 
 	let showModal = false;
@@ -87,7 +87,7 @@ profile picture, look at any subscriptions I have for this app. -->
 		profileImage = curr?.currentUser?.profileImage;
 		birthDay = curr?.currentUser?.birthDay;
 		collaborators = curr?.currentUser?.collaborators;
-		personalNoteBoard = curr?.currentUser?.personalNoteBoard;
+		myNotes = curr?.currentUser?.myNotes;
 		// console.log('Header: profileImage', profileImage);
 	});
 
@@ -352,8 +352,8 @@ profile picture, look at any subscriptions I have for this app. -->
 	<div class="justify-left my-4 w-3/4">
 		<div class="w-full text-lg font-extrabold">Locked Notes</div>
 		<div>
-			{#if personalNoteBoard && personalNoteBoard.length > 0}
-				{#each personalNoteBoard as personals}
+			{#if myNotes && myNotes.length > 0}
+				{#each myNotes as personals}
 					<div>{personals.title}</div>
 				{/each}
 			{:else}

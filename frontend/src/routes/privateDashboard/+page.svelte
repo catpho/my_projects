@@ -1,7 +1,7 @@
 <script>
 	//@ts-nocheck
 
-	import { userStore } from '$lib/stores/userStore';
+	import { userHandlers, userStore } from '$lib/stores/userStore';
 	import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	import { authStore } from '$lib/stores/authStore';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -16,11 +16,12 @@
 
 	let userData = null;
 	$: notes = [];
-	let personalNoteBoard = [];
+	let myNotes = [];
 	let userId = null;
 	let showModal = false;
 	let isEditing = false;
 	let noteID = null; // Track the ID of the note being edited
+	let newNoteId = null;
 	let noteData = {
 		title: '',
 		type: 'written',
@@ -32,10 +33,13 @@
 
 	noteStore.subscribe((state) => {
 		notes = state?.notes;
+		console.log('notes:', notes);
 	});
 
 	userStore.subscribe((state) => {
-		if (state?.currentUser?.uid) {
+		userId = state?.currentUser?.uid;
+		myNotes = state?.currentUser?.myNotes;
+		if (userId) {
 			fetchPersonalNoteBoard(state.currentUser.uid);
 		}
 	});
@@ -43,17 +47,18 @@
 	async function fetchPersonalNoteBoard(userId) {
 		try {
 			await noteHandlers.getUserNotes(userId);
-			// Filter only private notes from the global notes store
-			personalNoteBoard = notes.filter((note) => note.access === 'Private');
 		} catch (error) {
 			console.error('Error fetching personal notes:', error);
 		}
 	}
 	async function updateUserPersonalNotes() {
-		if (!userId) return;
-
-		const userRef = doc(db, 'users', userId);
-		await updateDoc(userRef, { personalNoteBoard });
+		if (!userId) {
+			alert('no user id');
+			return;
+		}
+		console.log('user Id', userId);
+		console.log('mynotes', myNotes);
+		await userHandlers.updateUser(userId, { myNotes });
 	}
 	function openModal() {
 		showModal = true;
@@ -78,29 +83,22 @@
 		if (typeof noteData.tags === 'string') {
 			noteData.tags = noteData.tags.split(',').map((tag) => tag.trim());
 		}
+
 		if (isEditing) {
 			await noteHandlers.updateNote(noteID, noteData, userId);
 
-			// If the access is changed to Public, remove it from personalNoteBoard
-			if (noteData.access === 'Public') {
-				personalNoteBoard = personalNoteBoard.filter((note) => note.id !== noteID);
-				await updateUserPersonalNotes();
-			}
 			// If the access is Private, and it wasn't already in the personal board, add it
-			else if (
-				noteData.access === 'Private' &&
-				!personalNoteBoard.some((note) => note.id === noteID)
-			) {
-				personalNoteBoard = [...personalNoteBoard, noteData];
+			if (!myNotes.some((note) => note === noteID)) {
+				myNotes = [...myNotes, noteID];
 				await updateUserPersonalNotes();
 			}
 		} else {
-			await noteHandlers.createNote(noteData, userId);
+			newNoteId = await noteHandlers.createNote(noteData, userId);
+			const newNoteWithId = { ...noteData, id: newNoteId };
+			await noteHandlers.updateNote(newNoteId, newNoteWithId, userId);
 
-			if (noteData.access == 'Private') {
-				personalNoteBoard = [...personalNoteBoard, noteData];
-				await updateUserPersonalNotes();
-			}
+			myNotes = [...myNotes, newNoteId];
+			await updateUserPersonalNotes();
 		}
 
 		closeModal();
@@ -116,21 +114,13 @@
 </script>
 
 <Search class="flex rounded-2xl border-none bg-white " placeholder="Search notes..."></Search>
-
 {#if notes.length > 0}
-	<div class="mt-5">
-		{#each notes as note}
+	<div class=" mt-5 grid grid-cols-2 flex-col gap-4">
+		{#each notes as note, index}
 			{#if note.access === 'Private'}
-				<div class="z-10 mb-5 rounded-2xl bg-black p-2 opacity-20">
-					<div class="mb-5 flex justify-between font-bold">
-						<h3>{note.title}</h3>
-						<span class="text-2xl text-gray-500">...</span>
-					</div>
-				</div>
-			{:else}
-				<div class=" mb-5 rounded-2xl bg-white p-4">
-					<div class="mb-5 flex justify-between font-bold">
-						<h3>{note.title}</h3>
+				<div class="rounded-2xl bg-gray-100 p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}">
+					<div class="mb-5 flex items-start justify-between font-bold">
+						<h3 class="line-clamp-1">{note.title}</h3>
 						<span class="text-2xl text-gray-500">...</span>
 					</div>
 					<p>{note.content}</p>
@@ -139,8 +129,7 @@
 							<li>{tag}</li>
 						{/each}
 					</ul>
-					<!-- <p><strong>Access:</strong> {note.access}</p> -->
-					<p>
+					<p class="mt-auto">
 						{note.noteCreatedAt
 							? (() => {
 									const date = new Date(note.noteCreatedAt.seconds * 1000);
@@ -155,15 +144,34 @@
 								})()
 							: 'N/A'}
 					</p>
-					<!-- <p>
-					<strong>Last Updated:</strong>
-					{note.lastUpdated ? new Date(note.lastUpdated.seconds * 1000).toLocaleString() : 'N/A'}
-				</p> -->
-
-					<!-- <button class="edit-btn" on:click={() => handleEditNote(note)}>✏️ Edit</button>
-				<button class="delete-btn" on:click={() => noteHandlers.deleteNote(note.id, userId)}
-					>🗑️ Delete</button
-				> -->
+				</div>
+			{:else}
+				<div class="rounded-2xl bg-white p-4 {index % 2 === 0 ? 'row-span-2' : 'row-span-1'}">
+					<div class=" flex items-start justify-between font-bold">
+						<h3 class="line-clamp-1">{note.title}</h3>
+						<span class="text-2xl text-gray-500">...</span>
+					</div>
+					<p>{note.content}</p>
+					<ul>
+						{#each note.tags as tag}
+							<li>{tag}</li>
+						{/each}
+					</ul>
+					<p class="mt-auto">
+						{note.noteCreatedAt
+							? (() => {
+									const date = new Date(note.noteCreatedAt.seconds * 1000);
+									return `${date.toLocaleDateString('en-GB', { weekday: 'long' })}, ${date.toLocaleDateString(
+										'en-GB',
+										{
+											day: '2-digit',
+											month: 'long',
+											year: '2-digit'
+										}
+									)}`;
+								})()
+							: 'N/A'}
+					</p>
 				</div>
 			{/if}
 		{/each}

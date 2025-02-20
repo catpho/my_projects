@@ -103,9 +103,11 @@ export const noteHandlers = {
                 userId,
                 imageUrls: [],
                 noteCreatedAt: serverTimestamp(),
-                lastUpdated: serverTimestamp()
+                lastUpdated: serverTimestamp(),
+
                 // Initialize with an empty imageUrls array
             });
+
             await noteHandlers.getUserNotes(userId);
             return newNoteRef.id;
 
@@ -172,13 +174,13 @@ export const noteHandlers = {
 
                 if (userDoc.exists()) {
                     let userData = userDoc.data();
-                    let updatedPersonalNotes = userData.personalNoteBoard.filter(note => note.id !== noteId);
+                    let updatedPersonalNotes = userData.myNotes.filter(note => note.id !== noteId);
 
-                    // Update the user's personalNoteBoard in Firestore
-                    await updateDoc(userRef, { personalNoteBoard: updatedPersonalNotes });
+                    // Update the user's myNotes in Firestore
+                    await updateDoc(userRef, { myNotes: updatedPersonalNotes });
 
-                    // Optionally, update the local personalNoteBoard state for UI update
-                    personalNoteBoard = updatedPersonalNotes;
+                    // Optionally, update the local myNotes state for UI update
+                    myNotes = updatedPersonalNotes;
                 }
 
                 await noteHandlers.getUserNotes(userId);

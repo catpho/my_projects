@@ -80,7 +80,7 @@
 							displayName: user.displayName,
 							uid: user.uid,
 							biography: '',
-							personalNoteBoard: [],
+							myNotes: [],
 							collaborators: [],
 							birthday: '',
 							createAt: new Date().toISOString(),
