@@ -207,13 +207,32 @@ profile picture, look at any subscriptions I have for this app. -->
 </script>
 
 <div class="relative flex h-screen flex-col">
-	<div class="absolute flex min-h-full min-w-full bg-red-400">
+	<div class="absolute flex min-h-full min-w-full">
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div aria-label="toggleEdit" class="ml-auto mr-10" on:click={() => (isEditing = !isEditing)}>
-			Edit
-		</div>
+
 		<div class="relative flex w-full flex-col items-center gap-4 p-4">
+			<div
+				aria-label="toggleEdit"
+				class="ml-auto mr-10 cursor-pointer"
+				on:click={() => (isEditing = !isEditing)}
+			>
+				<svg
+					class="h-6 w-6 text-red-400 dark:text-white"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					fill="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						fill-rule="evenodd"
+						d="M5 8a4 4 0 1 1 7.796 1.263l-2.533 2.534A4 4 0 0 1 5 8Zm4.06 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h2.172a2.999 2.999 0 0 1-.114-1.588l.674-3.372a3 3 0 0 1 .82-1.533L9.06 13Zm9.032-5a2.907 2.907 0 0 0-2.056.852L9.967 14.92a1 1 0 0 0-.273.51l-.675 3.373a1 1 0 0 0 1.177 1.177l3.372-.675a1 1 0 0 0 .511-.273l6.07-6.07a2.91 2.91 0 0 0-.944-4.742A2.907 2.907 0 0 0 18.092 8Z"
+						clip-rule="evenodd"
+					/>
+				</svg>
+			</div>
 			<div class=" flex w-full items-center justify-center">
 				{#if imageUrl}
 					{#if isEditing}
@@ -346,9 +365,7 @@ profile picture, look at any subscriptions I have for this app. -->
 				<div class="w-full text-lg font-extrabold">Locked Notes</div>
 				<div>
 					{#if myNotes && myNotes.length > 0}
-						{#each myNotes as personals}
-							<div>{personals.title}</div>
-						{/each}
+						<div>This user currently has {myNotes.length} notes in their dashboard.</div>
 					{:else}
 						There is no locked notes assigned to this user.
 					{/if}

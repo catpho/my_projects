@@ -113,7 +113,7 @@
 </script>
 
 <!-- use this as bg later bg-[#F8F8FA] -->
-<div class="flex flex-grow flex-col bg-blue-500">
+<div class="flex flex-grow flex-col overflow-auto bg-[#F8F8FA]">
 	{#if userId}
 		<Header />
 	{/if}
