@@ -95,9 +95,9 @@
 			<ul>
 				<li class=" flex items-center gap-5 font-bold">
 					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
-
+					<!-- FIXME: Make it so the user can choose to be active, not active, and then busy -->
 					{#if email != undefined}
-						<Avatar id="user-drop" src={imageUrl} class="cursor-pointer" />
+						<Avatar id="user-drop" src={imageUrl} class="cursor-pointer" dot={{ color: 'green' }} />
 						<Dropdown triggeredBy="#user-drop">
 							<DropdownHeader>
 								<span class="block text-sm">{displayName}</span>
