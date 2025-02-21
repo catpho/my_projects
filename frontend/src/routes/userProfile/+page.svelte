@@ -22,6 +22,7 @@ profile picture, look at any subscriptions I have for this app. -->
 	let displayName;
 	let userData;
 	let birthDay;
+	let biography;
 	let collaborators;
 	let myNotes = [];
 	let isEditing = false;
@@ -88,6 +89,7 @@ profile picture, look at any subscriptions I have for this app. -->
 		birthDay = curr?.currentUser?.birthDay;
 		collaborators = curr?.currentUser?.collaborators;
 		myNotes = curr?.currentUser?.myNotes;
+		biography = curr?.currentUser?.biography;
 		// console.log('Header: profileImage', profileImage);
 	});
 
@@ -173,6 +175,25 @@ profile picture, look at any subscriptions I have for this app. -->
 		} catch (err) {
 			console.error('Error updating birthday:', err);
 			error = 'Error updating birthday. Please try again.';
+		}
+	}
+	async function handleBioUpdate() {
+		if (!biography || !uid) {
+			error = 'No bio provided or user is not authenticated.';
+			return;
+		}
+		try {
+			const userRef = doc(db, 'users', uid);
+			await setDoc(
+				userRef,
+				{
+					biography: biography
+				},
+				{ merge: true }
+			);
+		} catch (err) {
+			console.error('Error updating bio:', err);
+			error = 'Error updating bio. Please try again.';
 		}
 	}
 	function replaceImage(event) {
@@ -305,10 +326,10 @@ profile picture, look at any subscriptions I have for this app. -->
 					</div>
 				</div>
 			{/if}
-			<div class="w-full justify-center text-center text-lg font-extrabold">
+			<div class="w-full justify-center text-center">
 				{#if isEditing}
-					{displayName}
-					<br />
+					<div class="text-lg font-extrabold">{displayName}</div>
+
 					<input
 						type="date"
 						bind:value={birthDay}
@@ -317,6 +338,16 @@ profile picture, look at any subscriptions I have for this app. -->
 					/>
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<div>
+						About Me:
+
+						<input
+							type="text"
+							bind:value={biography}
+							on:change={handleBioUpdate}
+							placeholder="Tell me about yourself!"
+						/>
+					</div>
 					<div
 						class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
 						on:click={() => openModal()}
@@ -324,8 +355,8 @@ profile picture, look at any subscriptions I have for this app. -->
 						Change Password?
 					</div>
 				{:else}
-					{displayName}
-					<br />
+					<div class="text-lg font-extrabold">{displayName}</div>
+
 					{#if birthDay}
 						{new Date(birthDay).toLocaleDateString('en-US', {
 							year: 'numeric',
@@ -335,6 +366,12 @@ profile picture, look at any subscriptions I have for this app. -->
 					{:else}
 						No birthdate set
 					{/if}
+					<br />
+					<div>
+						About Me:
+						<br />
+						{biography}
+					</div>
 				{/if}
 			</div>
 

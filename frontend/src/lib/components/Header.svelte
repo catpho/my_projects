@@ -95,8 +95,9 @@
 			<ul>
 				<li class=" flex items-center gap-5 font-bold">
 					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
+
 					{#if email != undefined}
-						<Avatar id="user-drop" src={imageUrl} class="cursor-pointer" dot={{ color: 'green' }} />
+						<Avatar id="user-drop" src={imageUrl} class="cursor-pointer" />
 						<Dropdown triggeredBy="#user-drop">
 							<DropdownHeader>
 								<span class="block text-sm">{displayName}</span>

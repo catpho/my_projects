@@ -124,7 +124,7 @@
 							class=" rounded-2xl bg-gray-300 p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}"
 						>
 							<div
-								class="absolute m-3 ml-10 flex flex-col items-center justify-center p-5 text-lg text-white sm:text-xl md:text-2xl"
+								class="absolute flex flex-col items-center justify-center p-5 text-lg text-white sm:text-xl md:text-2xl"
 							>
 								<svg
 									class="h-10 w-10"
