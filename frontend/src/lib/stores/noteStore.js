@@ -2,12 +2,12 @@
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase/firebase.client';
 import {
+    collection,
     addDoc,
     deleteDoc,
     updateDoc,
     getDoc,
     getDocs,
-    collection,
     doc,
     serverTimestamp, query,
     where
@@ -93,6 +93,45 @@ export const noteHandlers = {
         }
     },
 
+    searchNote: async (searchQuery) => {
+        try {
+            const userId = auth.currentUser ? auth.currentUser.uid : null;
+            if (!userId) {
+                throw new Error("User is not authenticated.");
+            }
+
+            // Query Firestore for notes belonging to the user that match the search query
+            const notesRef = collection(db, 'notes');
+            const q = query(
+                notesRef,
+                where("userId", "==", userId) // Ensure only user-owned notes are retrieved
+            );
+
+            const querySnapshot = await getDocs(q);
+            const notes = [];
+
+            querySnapshot.forEach((doc) => {
+                const noteData = doc.data();
+                // Perform client-side filtering for search terms
+                if (
+                    noteData.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    noteData.content.toLowerCase().includes(searchQuery.toLowerCase())
+                ) {
+                    notes.push({ id: doc.id, ...noteData });
+                }
+            });
+
+            noteStore.update(state => ({
+                ...state,
+                isLoading: false,
+                currentNotes: notes // Update store with filtered notes
+            }));
+
+
+        } catch (error) {
+            console.error('Error fetching notes:', error);
+        }
+    },
     // Add a new note
     createNote: async (noteData, userId) => {
         try {

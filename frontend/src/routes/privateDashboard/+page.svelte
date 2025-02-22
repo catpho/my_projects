@@ -6,9 +6,9 @@
 	import { authStore } from '$lib/stores/authStore';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
 	import { db } from '$lib/firebase/firebase.client';
-	import { Search } from 'flowbite-svelte';
+	import { Search, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { fade, slide, fly } from 'svelte/transition';
-
+	import { DotsHorizontalOutline } from 'flowbite-svelte-icons';
 	let expanded = false;
 	function toggleExpand() {
 		expanded = !expanded;
@@ -115,7 +115,12 @@
 
 <div class="relative min-h-screen">
 	<div class="absolute min-h-full w-full">
-		<Search class="flex rounded-2xl border-none bg-white " placeholder="Search notes..."></Search>
+		<!-- FIXME: SEARCH DOES NOT WOrk -->
+		<Search
+			class="flex rounded-2xl border-none bg-white "
+			placeholder="Search notes..."
+			onInput={(e) => noteHandlers.searchNote(e.target.value)}
+		/>
 		{#if notes.length > 0}
 			<div class=" mt-5 flex grid h-full grid-cols-2 flex-col gap-4">
 				{#each notes as note, index}
@@ -180,7 +185,14 @@
 						<div class="rounded-2xl bg-white p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}">
 							<div class=" flex items-start justify-between font-bold">
 								<h3 class="line-clamp-1">{note.title}</h3>
-								<span class="text-2xl text-gray-500">...</span>
+								<DotsHorizontalOutline />
+								<Dropdown class="w-36">
+									<DropdownItem on:click={() => handleEditNote(note)}>Edit</DropdownItem>
+									<!-- Error with defining myNotes but will delete  -->
+									<DropdownItem on:click={() => noteHandlers.deleteNote(note.id, userId)}
+										>Delete</DropdownItem
+									>
+								</Dropdown>
 							</div>
 							<p>{note.content}</p>
 							<ul>
