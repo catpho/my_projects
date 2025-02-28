@@ -1,9 +1,11 @@
 // @ts-nocheck
 import { writable } from 'svelte/store';
 import { db } from '$lib/firebase/firebase.client';
-import {auth} from '$lib/firebase/firebase.client';
-import { addDoc, deleteDoc, updateDoc, getDoc, getDocs, collection, doc } from 'firebase/firestore';
+import { auth } from '$lib/firebase/firebase.client';
+import { addDoc, deleteDoc, updateDoc, getDoc, getDocs, collection, doc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+
+
 export const userStore = writable({
     isLoading: true,
     users: [], // Store user data as an array
@@ -12,10 +14,10 @@ export const userStore = writable({
 
 onAuthStateChanged(auth, (user) => {
     userStore.set({
-      isLoading: false,
-      currentUser: user
+        isLoading: false,
+        currentUser: user
     });
-  });
+});
 
 // CRUD operations for users
 export const userHandlers = {
@@ -50,6 +52,24 @@ export const userHandlers = {
         } catch (error) {
             console.error('Error fetching user:', error);
             userStore.set({ isLoading: false, currentUser: null });
+        }
+    },
+
+    searchUsers: async (searchTerm) => {
+        try {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('displayName', '>=', searchTerm), where('displayName', '<=', searchTerm + '\uf8ff'));
+            const querySnapshot = await getDocs(q);
+
+            const users = [];
+            querySnapshot.forEach((doc) => {
+                users.push({ id: doc.id, ...doc.data() });
+            });
+
+            return users;
+        } catch (error) {
+            console.error('Error searching users:', error);
+            return [];
         }
     },
 

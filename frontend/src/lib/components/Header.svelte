@@ -58,6 +58,16 @@
 	const goProfile = () => {
 		goto('/userProfile'); // Navigate to user profile
 	};
+
+	//Set functions temp to bypass bug that redirects to privatedashboard when the user types another link into head
+	const goSearch = () => {
+		goto('/userSearch');
+	};
+
+	const goNotesTemp = () => {
+		goto('/noteTemp');
+	};
+
 	onMount(async () => {
 		if (uid) {
 			const storage = getStorage();
@@ -105,6 +115,8 @@
 							</DropdownHeader>
 							<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
 							<DropdownItem on:click={goProfile}>Settings</DropdownItem>
+							<DropdownItem on:click={goSearch}>Search User</DropdownItem>
+							<DropdownItem on:click={goNotesTemp}>Make Note</DropdownItem>
 							<DropdownDivider />
 							<DropdownItem on:click={logout}>Sign out</DropdownItem>
 						</Dropdown>
