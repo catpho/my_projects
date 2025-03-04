@@ -13,7 +13,7 @@
 	function toggleExpand() {
 		expanded = !expanded;
 	}
-
+	//FIXBUG
 	let userData = null;
 	$: notes = [];
 	let myNotes = [];
@@ -79,6 +79,7 @@
 	}
 
 	// try catch errors so that if there is issue, the action wont go through
+	//FIXME: fix bug number of notes != number in mynotes FIX!
 	async function handleSaveNote() {
 		if (typeof noteData.tags === 'string') {
 			noteData.tags = noteData.tags.split(',').map((tag) => tag.trim());
@@ -90,8 +91,9 @@
 			// If the access is Private, and it wasn't already in the personal board, add it
 			if (!myNotes.some((note) => note === noteID)) {
 				myNotes = [...myNotes, noteID];
-				await updateUserPersonalNotes();
+				
 			}
+			await updateUserPersonalNotes();
 		} else {
 			newNoteId = await noteHandlers.createNote(noteData, userId);
 			const newNoteWithId = { ...noteData, id: newNoteId };
@@ -124,6 +126,7 @@
 		{#if notes.length > 0}
 			<div class=" mt-5 flex grid h-full grid-cols-2 flex-col gap-4">
 				{#each notes as note, index}
+				<a href="/privateDashboard/notes/{note.id}">
 					{#if note.access === 'Private'}
 						<div
 							class=" rounded-2xl bg-gray-300 p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}"
@@ -221,7 +224,9 @@
 							</p>
 						</div>
 					{/if}
+				</a>
 				{/each}
+			
 			</div>
 		{:else}
 			<div>User has no notes.</div>

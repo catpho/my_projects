@@ -77,9 +77,12 @@ export const noteHandlers = {
                     currentNote: { id: noteDoc.id, ...noteDoc.data() }
                 }));
 
-                if (noteData.userId !== userId) {
-                    throw new Error("You do not have permission to view this note.");
-                }
+                // if (noteData.userId !== userId) {
+                //     console.log('note', noteData);
+                //     console.log('user', userId);
+                //     throw new Error("You do not have permission to view this note.");
+                // }
+                return noteDoc.data();
             } else {
                 console.warn(`Note with ID ${noteId} does not exist.`);
                 noteStore.update(state => ({

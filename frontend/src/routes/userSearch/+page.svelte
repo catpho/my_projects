@@ -1,14 +1,15 @@
 <script>
 	// @ts-ignore
 	import { Search, Listgroup, Avatar } from 'flowbite-svelte';
-	// @ts-ignore
 	import { writable, derived } from 'svelte/store';
-	// @ts-ignore
+	
 	import { userStore, userHandlers } from '$lib/stores/userStore';
 
 	let searchTerm = '';
+	// @ts-ignore
 	let query = writable([]);
 
+	
 	// @ts-ignore
 	const searchUsers = async () => {
 		if (searchTerm.trim() !== '') {
@@ -41,7 +42,7 @@
 							{item.email}
 						</p>
 					</div>
-					<button class="bg-blue-100">Send Request</button>
+					<button class="rounded bg-green-300 px-4 py-2 text-white">Send Request</button>
 				</div>
 			</Listgroup>
 		{/if}

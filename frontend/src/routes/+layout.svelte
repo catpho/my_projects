@@ -3,6 +3,7 @@
 	import '../app.css';
 
 	import { onMount } from 'svelte';
+
 	import { auth, db } from '$lib/firebase/firebase.client';
 	import Header from '$lib/components/Header.svelte';
 	import { authStore } from '$lib/stores/authStore';
@@ -20,6 +21,8 @@
 	let forgotPassword = false;
 	let registerStep = 1;
 
+	let hideHeader = false;
+
 	const nonAuthRoutes = [
 		'/',
 		'/aboutUs',
@@ -29,6 +32,7 @@
 		'/termsOfUse',
 		'/privacyPolicy'
 	];
+	const noHeaderRoutes = ['/noteTemp'];
 
 	authStore.subscribe((state) => {
 		userId = state?.currentUser?.uid;
@@ -61,6 +65,9 @@
 				return;
 			}
 
+			if (user && noHeaderRoutes.includes(currentPath)) {
+				hideHeader = true;
+			}
 			if (user) {
 				try {
 					let dataToSetToStore;
@@ -112,12 +119,12 @@
 	});
 </script>
 
-<!-- use this as bg later bg-[#F8F8FA] -->
+<!-- header does not work currently to be hidden on certain pages -->
 <div class="flex flex-grow flex-col overflow-auto bg-[#F8F8FA]">
 	{#if userId}
 		<Header />
 	{/if}
-	<main class=" mx-auto flex h-full w-full flex-grow flex-col p-1">
+	<main class=" mx-auto flex h-full w-full flex-grow flex-col p-1 px-5">
 		<slot></slot>
 	</main>
 </div>
