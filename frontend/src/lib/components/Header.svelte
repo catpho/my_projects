@@ -64,9 +64,7 @@
 		goto('/userSearch');
 	};
 
-	const goNotesTemp = () => {
-		goto('/noteTemp');
-	};
+
 
 	onMount(async () => {
 		if (uid) {
@@ -116,7 +114,7 @@
 							<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
 							<DropdownItem on:click={goProfile}>Settings</DropdownItem>
 							<DropdownItem on:click={goSearch}>Search User</DropdownItem>
-							<DropdownItem on:click={goNotesTemp}>Make Note</DropdownItem>
+							
 							<DropdownDivider />
 							<DropdownItem on:click={logout}>Sign out</DropdownItem>
 						</Dropdown>
