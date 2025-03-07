@@ -31,6 +31,8 @@
 		imageUrls: []
 	};
 
+	let searchQuery = "";
+
 	noteStore.subscribe((state) => {
 		notes = state?.notes;
 		console.log('notes:', notes);
@@ -118,120 +120,122 @@
 <div class="relative min-h-screen">
 	<div class="absolute min-h-full w-full">
 		<!-- FIXME: SEARCH DOES NOT WOrk -->
-		<Search
-			class="flex rounded-2xl border-none bg-white "
-			placeholder="Search notes..."
-			onInput={(e) => noteHandlers.searchNote(e.target.value)}
-		/>
-		{#if notes.length > 0}
-			<div class=" mt-5 flex grid h-full grid-cols-2 flex-col gap-4">
-				{#each notes as note, index}
-				<a href="/privateDashboard/notes/{note.id}">
-					{#if note.access === 'Private'}
-						<div
-							class=" rounded-2xl bg-gray-300 p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}"
-						>
-							<div
-								class="absolute flex flex-col items-center justify-center p-5 text-lg text-white sm:text-xl md:text-2xl"
-							>
-								<svg
-									class="h-10 w-10"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									fill="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-								Locked Note
-							</div>
-							<div class="opacity-20 blur-sm">
-								<div class="mb-5 flex items-start justify-between font-bold">
-									<h3 class="line-clamp-1">{note.title}</h3>
-									<span class=" text-2xl text-gray-500">...</span>
-								</div>
-								<p>{note.content}</p>
-								<ul>
-									{#each note.tags as tag}
-										<li>{tag}</li>
-									{/each}
-								</ul>
-								<br />
-								<p class="mt-auto text-sm text-gray-500">
-									{note.noteCreatedAt
-										? (() => {
-												const date = new Date(note.noteCreatedAt.seconds * 1000);
-												const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
-												const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
+		 
+<Search bind:value={searchQuery} placeholder="Search notes..."  on:input={() => noteHandlers.searchNote(searchQuery)} />
+{#if $noteStore.isLoading}
+    <p>Loading notes...</p>
+{:else}
+{#if notes.length > 0}
+<div class=" mt-5 flex grid h-full grid-cols-2 flex-col gap-4">
+	{#each notes as note, index}
+	<a href="/privateDashboard/notes/{note.id}">
+		{#if note.access === 'Private'}
+			<div
+				class=" rounded-2xl bg-gray-300 p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}"
+			>
+				<div
+					class="absolute flex flex-col items-center justify-center p-5 text-lg text-white sm:text-xl md:text-2xl"
+				>
+					<svg
+						class="h-10 w-10"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+					Locked Note
+				</div>
+				<div class="opacity-20 blur-sm">
+					<div class="mb-5 flex items-start justify-between font-bold">
+						<h3 class="line-clamp-1">{note.title}</h3>
+						<span class=" text-2xl text-gray-500">...</span>
+					</div>
+					<p>{note.content}</p>
+					<ul>
+						{#each note.tags as tag}
+							<li>{tag}</li>
+						{/each}
+					</ul>
+					<br />
+					<p class="mt-auto text-sm text-gray-500">
+						{note.noteCreatedAt
+							? (() => {
+									const date = new Date(note.noteCreatedAt.seconds * 1000);
+									const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+									const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
 
-												// Shorten weekday and month unless the month has exactly four letters
-												const shortWeekday = fullWeekday.slice(0, 3);
-												const shortMonth =
-													fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
+									// Shorten weekday and month unless the month has exactly four letters
+									const shortWeekday = fullWeekday.slice(0, 3);
+									const shortMonth =
+										fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
 
-												// Format the correct order: "Thu, 20 Feb 25"
-												return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
-													day: '2-digit'
-												})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
-											})()
-										: 'N/A'}
-								</p>
-							</div>
-						</div>
-					{:else}
-						<div class="rounded-2xl bg-white p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}">
-							<div class=" flex items-start justify-between font-bold">
-								<h3 class="line-clamp-1">{note.title}</h3>
-								<DotsHorizontalOutline />
-								<Dropdown class="w-36">
-									<DropdownItem on:click={() => handleEditNote(note)}>Edit</DropdownItem>
-									<!-- Error with defining myNotes but will delete  -->
-									<DropdownItem on:click={() => noteHandlers.deleteNote(note.id, userId)}
-										>Delete</DropdownItem
-									>
-								</Dropdown>
-							</div>
-							<p>{note.content}</p>
-							<ul>
-								{#each note.tags as tag}
-									<li>{tag}</li>
-								{/each}
-							</ul>
-							<br />
-							<p class="mt-auto text-sm text-gray-500">
-								{note.noteCreatedAt
-									? (() => {
-											const date = new Date(note.noteCreatedAt.seconds * 1000);
-											const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
-											const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
-
-											// Shorten weekday and month unless the month has exactly four letters
-											const shortWeekday = fullWeekday.slice(0, 3);
-											const shortMonth = fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
-
-											// Format the correct order: "Thu, 20 Feb 25"
-											return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
-												day: '2-digit'
-											})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
-										})()
-									: 'N/A'}
-							</p>
-						</div>
-					{/if}
-				</a>
-				{/each}
-			
+									// Format the correct order: "Thu, 20 Feb 25"
+									return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
+										day: '2-digit'
+									})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
+								})()
+							: 'N/A'}
+					</p>
+				</div>
 			</div>
 		{:else}
-			<div>User has no notes.</div>
-		{/if}
+			<div class="rounded-2xl bg-white p-4 {index % 3 === 0 ? 'row-span-2' : 'row-span-1'}">
+				<div class=" flex items-start justify-between font-bold">
+					<h3 class="line-clamp-1">{note.title}</h3>
+					<DotsHorizontalOutline />
+					<Dropdown class="w-36">
+						<DropdownItem on:click={() => handleEditNote(note)}>Edit</DropdownItem>
+						<!-- Error with defining myNotes but will delete  -->
+						<DropdownItem on:click={() => noteHandlers.deleteNote(note.id, userId)}
+							>Delete</DropdownItem
+						>
+					</Dropdown>
+				</div>
+				<p>{note.content}</p>
+				<ul>
+					{#each note.tags as tag}
+						<li>{tag}</li>
+					{/each}
+				</ul>
+				<br />
+				<p class="mt-auto text-sm text-gray-500">
+					{note.noteCreatedAt
+						? (() => {
+								const date = new Date(note.noteCreatedAt.seconds * 1000);
+								const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+								const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
 
+								// Shorten weekday and month unless the month has exactly four letters
+								const shortWeekday = fullWeekday.slice(0, 3);
+								const shortMonth = fullMonth.length === 4 ? fullMonth : fullMonth.slice(0, 3);
+
+								// Format the correct order: "Thu, 20 Feb 25"
+								return `${shortWeekday}, ${date.toLocaleDateString('en-GB', {
+									day: '2-digit'
+								})} ${shortMonth} ${date.toLocaleDateString('en-GB', { year: '2-digit' })}`;
+							})()
+						: 'N/A'}
+				</p>
+			</div>
+		{/if}
+	</a>
+	{/each}
+
+</div>
+{:else}
+<div>User has no notes.</div>
+{/if}
+
+{/if}
+		
 		{#if showModal}
 			<div class="modal">
 				<div class="modal-content">

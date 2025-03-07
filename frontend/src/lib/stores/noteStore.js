@@ -103,6 +103,7 @@ export const noteHandlers = {
                 throw new Error("User is not authenticated.");
             }
 
+            noteStore.update(state => ({ ...state, isLoading: true }));
             // Query Firestore for notes belonging to the user that match the search query
             const notesRef = collection(db, 'notes');
             const q = query(
@@ -111,31 +112,31 @@ export const noteHandlers = {
             );
 
             const querySnapshot = await getDocs(q);
-            const notes = [];
+            const filteredNotes = querySnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() })) // Convert snapshot to array
+            .filter(note =>
+                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                note.content.toLowerCase().includes(searchQuery.toLowerCase())
+            ); // Client-side filtering
 
-            querySnapshot.forEach((doc) => {
-                const noteData = doc.data();
-                // Perform client-side filtering for search terms
-                if (
-                    noteData.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    noteData.content.toLowerCase().includes(searchQuery.toLowerCase())
-                ) {
-                    notes.push({ id: doc.id, ...noteData });
-                }
-            });
+        console.log('Filtered notes:', filteredNotes); // Debugging log
 
-            noteStore.update(state => ({
-                ...state,
-                isLoading: false,
-                currentNotes: notes // Update store with filtered notes
-            }));
+        // ✅ Correctly updating `notes`
+        noteStore.update(state => ({
+            ...state,
+            isLoading: false,
+            notes: filteredNotes
+        }));
 
+        return filteredNotes;
 
         } catch (error) {
             console.error('Error fetching notes:', error);
+            noteStore.update(state => ({ ...state, isLoading: false }));
         }
     },
     // Add a new note
+     
     createNote: async (noteData, userId) => {
         try {
 
