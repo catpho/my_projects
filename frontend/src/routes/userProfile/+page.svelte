@@ -263,7 +263,7 @@ profile picture, look at any subscriptions I have for this app. -->
 							<input
 								id="imageReplacement"
 								type="file"
-								class="block"
+								class="hidden"
 								accept="image/*"
 								on:change={replaceImage}
 							/>
@@ -331,23 +331,27 @@ profile picture, look at any subscriptions I have for this app. -->
 					<div class="text-lg font-extrabold">{displayName}</div>
 
 					<input
+					class="border-none "
 						type="date"
 						bind:value={birthDay}
 						on:change={handleBirthdateUpdate}
 						placeholder="Select your birthdate"
 					/>
+					<br/>
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<div>
 						About Me:
 
-						<input
-							type="text"
-							bind:value={biography}
-							on:change={handleBioUpdate}
-							placeholder="Tell me about yourself!"
-						/>
 					</div>
+					
+					<input
+					type="text"
+					class="border-none"
+					bind:value={biography}
+					on:change={handleBioUpdate}
+					placeholder="Tell me about yourself!"
+				/>
 					<div
 						class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
 						on:click={() => openModal()}
@@ -389,11 +393,12 @@ profile picture, look at any subscriptions I have for this app. -->
 				</div>
 
 				{#if isEditing}
-					<div
+					<a href="/userSearch"
 						class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
 					>
 						+add a User
-					</div>
+
+					</a>
 				{/if}
 			</div>
 

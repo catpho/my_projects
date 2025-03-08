@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { writable } from 'svelte/store';
+import { userHandlers, userStore } from '$lib/stores/userStore';
 import { db } from '$lib/firebase/firebase.client';
 import {
     collection,
@@ -201,36 +202,38 @@ export const noteHandlers = {
 
     // Delete a note
     deleteNote: async (noteId, userId) => {
-
         const confirmation = window.confirm('Are you sure you want to delete this note?');
-        if (confirmation) {
-            try {
-                const noteRef = doc(db, 'notes', noteId);
-                const noteDoc = await getDoc(noteRef);
-                if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
-                    throw new Error("You do not have permission to delete this note.");
-                }
-                await deleteDoc(noteRef);
-
-                const userRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userRef);
-
-                if (userDoc.exists()) {
-                    let userData = userDoc.data();
-                    let updatedPersonalNotes = userData.myNotes.filter(note => note.id !== noteId);
-
-                    // Update the user's myNotes in Firestore
-                    await updateDoc(userRef, { myNotes: updatedPersonalNotes });
-
-                    // Optionally, update the local myNotes state for UI update
-                    myNotes = updatedPersonalNotes;
-                }
-
-                await noteHandlers.getUserNotes(userId);
-                alert('Note successfully deleted.');
-            } catch (error) {
-                console.error('Error deleting note:', error);
+        if (!confirmation) return;
+    
+        try {
+            // Verify ownership and existence of the note before deletion
+            const noteRef = doc(db, 'notes', noteId);
+            const noteDoc = await getDoc(noteRef);
+            if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
+                throw new Error("You do not have permission to delete this note.");
             }
+    
+            // Delete the note document from the "notes" collection
+            await deleteDoc(noteRef);
+    
+            // Remove the note from the user's "myNotes" array in Firestore
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const updatedPersonalNotes = userData.myNotes.filter(note => note.id !== noteId);
+                await updateDoc(userRef, { myNotes: updatedPersonalNotes });
+    
+                // If needed, update the user data locally (e.g., via your userHandlers)
+                await userHandlers.updateUser(userId, { myNotes: updatedPersonalNotes });
+            }
+    
+            // Refresh the noteStore by re-fetching the user's notes from the database
+            await noteHandlers.getUserNotes(userId);
+    
+            alert('Note successfully deleted.');
+        } catch (error) {
+            console.error('Error deleting note:', error);
         }
     },
 

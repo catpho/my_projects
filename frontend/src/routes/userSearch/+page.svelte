@@ -8,8 +8,14 @@
 	let searchTerm = '';
 	// @ts-ignore
 	let query = writable([]);
+	let requestSent = false;
 
-	
+	let requestModOpen = false; 
+	 
+	function toggleRequestView() {
+    requestModOpen = !requestModOpen;
+  }
+
 	// @ts-ignore
 	const searchUsers = async () => {
 		if (searchTerm.trim() !== '') {
@@ -42,13 +48,37 @@
 							{item.email}
 						</p>
 					</div>
-					<button class="rounded bg-green-300 px-4 py-2 text-white">Send Request</button>
+	
+					<button 
+					class="rounded px-4 py-2 text-white transition-colors duration-300"
+					class:bg-green-500={!requestSent} 
+					class:bg-gray-500={requestSent}
+					on:click={() => requestSent = !requestSent}
+					>
+					{requestSent ? "Request Sent" : "Send Request"}
+					</button>
 				</div>
 			</Listgroup>
 		{/if}
 		<br />
+
+		{#if requestModOpen != false}
+		<div class="relative inline-flex items-center justify-center bg-white rounded-lg">
+			<button class="absolute top-2 left-2 w-6 h-6 flex justify-center" on:click={()=>toggleRequestView() }>
+				✕
+			  </button>
+			<form action="" class="flex flex-col items-center p-6">
+			  <input type="text" class="border-none rounded-lg p-2 m-2 w-64 bg-gray-200" id="emailAddress" name="email" placeholder="Enter Email...">
+			  <input type="text" class="border-none rounded-lg p-2 m-2 w-64 bg-gray-200" id="confirmEmailAddress" name="confirmEmail" placeholder="Confirm Email...">
+			  <input type="submit" value="Send" class="rounded-lg bg-blue-500 p-2  text-white cursor-pointer">
+			</form>
+		  </div>
+		{/if}
+
 		<div class="absolute bottom-4 left-0 right-0 flex items-center justify-center">
-			<button class="rounded bg-blue-500 px-4 py-2 text-white">Can't Find User?</button>
+			<button class="rounded bg-blue-500 px-4 py-2 text-white" on:click={()=>toggleRequestView() }>Can't Find User?</button>
 		</div>
 	</div>
+
+	
 </div>
