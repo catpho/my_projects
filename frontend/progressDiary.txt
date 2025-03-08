@@ -1,0 +1,13 @@
+3/7 Notes and Updates
+
+Goals: 
++ https://duckduckgo.com/?q=pwa+svelte&iax=videos&ia=videos&iai=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DEnl4OPQ2OAM
+ watch this video and commit this change 
+
+ + make a usecase for audio recordings to be saved as notes and for photos to be saved as notes
+ + fix edit for notes so it is only through clicking and editing on the noteid page 
+    -delete edit for the module on private dashboard 
+        -make two views for dashboard 
+        -make two views for users/// similar to the notes 
+
++STAR GOAL: is to make other users to see profile and notes they have shared with 
