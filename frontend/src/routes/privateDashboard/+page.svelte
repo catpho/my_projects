@@ -19,7 +19,6 @@
 	let myNotes = [];
 	let userId = null;
 	let showModal = false;
-	let isEditing = false;
 	let noteID = null; // Track the ID of the note being edited
 	let newNoteId = null;
 	let noteData = {
@@ -77,31 +76,21 @@
 			content: '',
 			imageUrls: []
 		};
-		isEditing = false;
 		noteID = null; // Reset noteID when closing the modal
 	}
 
 	// try catch errors so that if there is issue, the action wont go through
 	//FIXME: fix bug number of notes != number in mynotes FIX!
-	async function handleSaveNote() {
+	async function handleCreateNote() {
 		if (typeof noteData.tags === 'string') {
 			noteData.tags = noteData.tags.split(',').map((tag) => tag.trim());
 		}
+		newNoteId = await noteHandlers.createNote(noteData, userId);
+		const newNoteWithId = { ...noteData, id: newNoteId };
+		await noteHandlers.updateNote(newNoteId, newNoteWithId, userId);
 
-		if (isEditing) {
-			await noteHandlers.updateNote(noteID, noteData, userId);
+		myNotes = [...myNotes, newNoteId];
 
-			// If the access is Private, and it wasn't already in the personal board, add it
-			if (!myNotes.some((note) => note === noteID)) {
-				myNotes = [...myNotes, noteID];
-			}
-		} else {
-			newNoteId = await noteHandlers.createNote(noteData, userId);
-			const newNoteWithId = { ...noteData, id: newNoteId };
-			await noteHandlers.updateNote(newNoteId, newNoteWithId, userId);
-
-			myNotes = [...myNotes, newNoteId];
-		}
 		await updateUserPersonalNotes();
 
 		closeModal();
@@ -116,13 +105,6 @@
 	}
 	function toggleDropdown(noteId) {
 		noteMenu[noteId] = !noteMenu[noteId]; // Toggle dropdown visibility
-	}
-
-	function handleEditNote(note) {
-		isEditing = true;
-		noteID = note.id;
-		noteData = { ...note };
-		openModal();
 	}
 </script>
 
@@ -248,7 +230,7 @@
 		{#if showModal}
 			<div class="modal">
 				<div class="modal-content">
-					<h2>{isEditing ? 'Edit Note' : 'Create a New Note'}</h2>
+					<h2>Create a New Note</h2>
 
 					<label for="title">Title:</label>
 					<input type="text" id="title" bind:value={noteData.title} />
@@ -278,10 +260,11 @@
 						<option value="Private" selected={noteData.access === 'Private'}>Private</option>
 					</select>
 
-					<button on:click={handleSaveNote}>{isEditing ? 'Update Note' : 'Save Note'}</button>
+					<button on:click={handleCreateNote}>Save Note</button>
 					<button on:click={closeModal}>Cancel</button>
 				</div>
 			</div>
+			<!--details of the modal to add notes at bottom of page-->
 		{:else}
 			<div class="fixed left-1/2 top-[90%] z-50 flex -translate-x-1/2 items-center justify-center">
 				<div
@@ -307,7 +290,7 @@
 							</p>
 						{/if}
 					</button>
-
+					<!-- html for module that creates notes-->
 					{#if expanded}
 						<div
 							class=" flex h-1 flex-row items-center"
