@@ -114,22 +114,22 @@ export const noteHandlers = {
 
             const querySnapshot = await getDocs(q);
             const filteredNotes = querySnapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() })) // Convert snapshot to array
-            .filter(note =>
-                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                note.content.toLowerCase().includes(searchQuery.toLowerCase())
-            ); // Client-side filtering
+                .map(doc => ({ id: doc.id, ...doc.data() })) // Convert snapshot to array
+                .filter(note =>
+                    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+                ); // Client-side filtering
 
-        console.log('Filtered notes:', filteredNotes); // Debugging log
+            console.log('Filtered notes:', filteredNotes); // Debugging log
 
-        // ✅ Correctly updating `notes`
-        noteStore.update(state => ({
-            ...state,
-            isLoading: false,
-            notes: filteredNotes
-        }));
+            // ✅ Correctly updating `notes`
+            noteStore.update(state => ({
+                ...state,
+                isLoading: false,
+                notes: filteredNotes
+            }));
 
-        return filteredNotes;
+            return filteredNotes;
 
         } catch (error) {
             console.error('Error fetching notes:', error);
@@ -137,7 +137,7 @@ export const noteHandlers = {
         }
     },
     // Add a new note
-     
+
     createNote: async (noteData, userId) => {
         try {
 
@@ -188,6 +188,8 @@ export const noteHandlers = {
         try {
             const noteRef = doc(db, 'notes', noteId);
             const noteDoc = await getDoc(noteRef);
+            // console.log("notedoc id:", noteDoc.data().userId)
+            // console.log("userid:", userId)
             if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
                 throw new Error("You do not have permission to update this note.");
             }
@@ -204,7 +206,7 @@ export const noteHandlers = {
     deleteNote: async (noteId, userId) => {
         const confirmation = window.confirm('Are you sure you want to delete this note?');
         if (!confirmation) return;
-    
+
         try {
             // Verify ownership and existence of the note before deletion
             const noteRef = doc(db, 'notes', noteId);
@@ -212,10 +214,10 @@ export const noteHandlers = {
             if (!noteDoc.exists() || noteDoc.data().userId !== userId) {
                 throw new Error("You do not have permission to delete this note.");
             }
-    
+
             // Delete the note document from the "notes" collection
             await deleteDoc(noteRef);
-    
+
             // Remove the note from the user's "myNotes" array in Firestore
             const userRef = doc(db, 'users', userId);
             const userDoc = await getDoc(userRef);
@@ -223,14 +225,14 @@ export const noteHandlers = {
                 const userData = userDoc.data();
                 const updatedPersonalNotes = userData.myNotes.filter(note => note.id !== noteId);
                 await updateDoc(userRef, { myNotes: updatedPersonalNotes });
-    
+
                 // If needed, update the user data locally (e.g., via your userHandlers)
                 await userHandlers.updateUser(userId, { myNotes: updatedPersonalNotes });
             }
-    
+
             // Refresh the noteStore by re-fetching the user's notes from the database
             await noteHandlers.getUserNotes(userId);
-    
+
             alert('Note successfully deleted.');
         } catch (error) {
             console.error('Error deleting note:', error);
