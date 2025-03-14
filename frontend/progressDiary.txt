@@ -4,9 +4,9 @@ Goals:
 + https://duckduckgo.com/?q=pwa+svelte&iax=videos&ia=videos&iai=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DEnl4OPQ2OAM
  watch this video and commit this change 
 
- + make a usecase for audio recordings to be saved as notes and for photos to be saved as notes
- + fix edit for notes so it is only through clicking and editing on the noteid page 
-    -delete edit for the module on private dashboard 
+ + make a usecase for audio recordings to be saved as notes and NOT DONE for photos to be saved as notes DONE
+ + fix edit for notes so it is only through clicking and editing on the noteid page  DONE
+    -delete edit for the module on private dashboard    DONE
         -make two views for dashboard 
         -make two views for users/// similar to the notes 
 
@@ -16,3 +16,9 @@ Goals:
 
 made usecase for photos to be saved as notes but the slideshow function is not showable 
 todo list is also not very good right now 
+
+3/14
+updated so app is installable via google chrome 
+when done with app functionality, refactor app into components to reuse 
+make a todo app component and a slideshow component-- native carousal does not work!
+experiment with voice recordings 

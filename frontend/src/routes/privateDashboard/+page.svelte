@@ -10,7 +10,8 @@
 	import { Search, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { fade, slide, fly } from 'svelte/transition';
 	import { DotsHorizontalOutline } from 'flowbite-svelte-icons';
-	import { Carousel } from 'flowbite-svelte';
+	import ToDo from '$lib/components/ToDo.svelte';
+	import SlideshowPreview from '$lib/components/SlideshowPreview.svelte';
 	let expanded = false;
 	function toggleExpand() {
 		expanded = !expanded;
@@ -103,17 +104,6 @@
 		};
 		noteID = null; // Reset noteID when closing the modal
 	}
-
-	const addTodoItem = () => {
-		if (noteData.newTodo && !noteData.todoList.includes(noteData.newTodo)) {
-			noteData.todoList.push(noteData.newTodo);
-			noteData.newTodo = ''; // Clear the input field
-		}
-	};
-
-	const removeTodoItem = (index) => {
-		noteData.todoList.splice(index, 1);
-	};
 
 	const storage = getStorage();
 
@@ -210,6 +200,7 @@
 										<h3 class="line-clamp-1">{note.title}</h3>
 									</div>
 									<p>{note.content}</p>
+
 									<ul>
 										{#each note.tags as tag}
 											<li>{tag}</li>
@@ -258,7 +249,9 @@
 							</div>
 
 							<p>{note.content}</p>
-
+							{#if note.imageUrls?.length > 0}
+								<SlideshowPreview imageUrls={note.imageUrls} />
+							{/if}
 							<ul>
 								{#each note.tags as tag}
 									<li>{tag}</li>
@@ -324,21 +317,7 @@
 					</select>
 					<!--Make it so the todoList composition is more structured// tied to the noteid svelte-->
 					{#if noteData.type === 'written'}
-						<div class="todo-list">
-							<label for="todo">To-Do List:</label>
-							<input type="text" bind:value={noteData.newTodo} placeholder="Add a to-do item" />
-							<button on:click={addTodoItem}>Add</button>
-
-							{#if noteData.todoList.length > 0}
-								<ul>
-									{#each noteData.todoList as todo, index}
-										<li>
-											{todo} <button on:click={() => removeTodoItem(index)}>Remove</button>
-										</li>
-									{/each}
-								</ul>
-							{/if}
-						</div>
+						<ToDo bind:tasks={noteData.todoList} />
 					{/if}
 
 					<button on:click={handleCreateNote}>Save Note</button>
