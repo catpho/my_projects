@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	import { auth } from '$lib/firebase/firebase.client';
+	import { Carousel } from 'flowbite-svelte';
 
 	let timestamp = null;
 	let isExpanded = false;
@@ -40,6 +41,21 @@
 			isEditing = false;
 		}
 	}
+
+	let currentIndex = 0;
+
+	const nextImage = () => {
+		currentIndex = (currentIndex + 1) % data.noteData.imageUrls.length;
+	};
+
+	const prevImage = () => {
+		currentIndex =
+			(currentIndex - 1 + data.noteData.imageUrls.length) % data.noteData.imageUrls.length;
+	};
+
+	const goToImage = (index) => {
+		currentIndex = index;
+	};
 
 	onMount(() => {
 		console.log('data', data);
@@ -79,20 +95,17 @@
 		</button>
 	</div>
 	<br />
-	<!-- <div class="font-extrabold text-4xl">{data.noteData.title}</div>
-    <div class="text-sm text-gray-500 ">{formatFirestoreTimestamp(data.noteData.noteCreatedAt)}</div>
-    <br/>
-    <div>{data.noteData.content}</div> -->
+	<!--Make sure the edit view is exact replica of the screens on excalidraw-->
 	{#if isEditing}
 		<!-- Editable fields when in editing mode -->
 		<input
 			type="text"
 			bind:value={data.noteData.title}
-			class="border p-2 text-4xl font-extrabold"
+			class="border-none p-2 text-4xl font-extrabold"
 		/>
 		<textarea
 			bind:value={data.noteData.content}
-			class="mt-4 border p-2 text-sm text-gray-500"
+			class="mt-4 border-none p-2 text-sm text-gray-500"
 			rows="10"
 		></textarea>
 		<button on:click={handleSaveNote} class="mt-4 rounded bg-blue-500 p-2 text-white">
@@ -104,6 +117,47 @@
 		<div class="text-sm text-gray-500">{formatFirestoreTimestamp(data.noteData.noteCreatedAt)}</div>
 		<br />
 		<div>{data.noteData.content}</div>
+
+		{#if data.noteData.imageUrls && data.noteData.imageUrls.length > 0}
+			<div class="relative">
+				<img
+					src={data.noteData.imageUrls[currentIndex]}
+					alt="Slideshow Image"
+					class="h-auto w-full rounded-lg object-cover"
+				/>
+			</div>
+
+			<!-- Previous Button -->
+			<button
+				on:click={prevImage}
+				class="absolute left-4 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white shadow-lg hover:bg-opacity-75"
+			>
+				&#10094;
+			</button>
+
+			<!-- Next Button -->
+			<button
+				on:click={nextImage}
+				class="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-black bg-opacity-50 p-2 text-white shadow-lg hover:bg-opacity-75"
+			>
+				&#10095;
+			</button>
+
+			<!-- Thumbnails -->
+			<div class="mt-4 flex justify-center">
+				{#each data.noteData.imageUrls as img, index}
+					<img
+						src={img}
+						alt="Thumbnail"
+						class="mx-2 h-16 w-16 cursor-pointer rounded-lg object-cover opacity-70 transition-opacity duration-300 hover:opacity-100"
+						on:click={() => goToImage(index)}
+						class:selected={currentIndex === index}
+					/>
+				{/each}
+			</div>
+		{/if}
+
+		<div>{data.noteData.todoList}</div>
 	{/if}
 
 	<!-- svelte-ignore a11y_no_static_element_interactions -->

@@ -146,6 +146,7 @@ export const noteHandlers = {
                 ...noteData,
                 userId,
                 imageUrls: [],
+                todoList: [],
                 noteCreatedAt: serverTimestamp(),
                 lastUpdated: serverTimestamp(),
 

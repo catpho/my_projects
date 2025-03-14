@@ -5,10 +5,12 @@
 	import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	import { authStore } from '$lib/stores/authStore';
 	import { doc, getDoc, updateDoc } from 'firebase/firestore';
+	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 	import { db } from '$lib/firebase/firebase.client';
 	import { Search, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { fade, slide, fly } from 'svelte/transition';
 	import { DotsHorizontalOutline } from 'flowbite-svelte-icons';
+	import { Carousel } from 'flowbite-svelte';
 	let expanded = false;
 	function toggleExpand() {
 		expanded = !expanded;
@@ -18,17 +20,22 @@
 	$: notes = [];
 	let myNotes = [];
 	let userId = null;
-	let showModal = false;
+	let showWrittenModal = false;
+	let showImagesModal = false;
 	let noteID = null; // Track the ID of the note being edited
 	let newNoteId = null;
 	let noteData = {
 		title: '',
 		type: 'written',
 		tags: '',
-		access: 'Private',
+		access: 'Public',
 		content: '',
-		imageUrls: []
+		imageUrls: [],
+		todoList: []
 	};
+
+	let selectedImages = [];
+	let imageUrls = [];
 
 	let searchQuery = '';
 	let noteMenu = {};
@@ -62,25 +69,75 @@
 		console.log('mynotes', myNotes);
 		await userHandlers.updateUser(userId, { myNotes });
 	}
-	function openModal() {
-		showModal = true;
+	function openWrittenModal() {
+		showWrittenModal = true;
 	}
 
-	function closeModal() {
-		showModal = false;
+	function openImagesModal() {
+		showImagesModal = true;
+	}
+
+	function closeImagesModal() {
+		showImagesModal = false;
+		selectedImages = [];
+		noteData = {
+			title: '',
+			type: 'images',
+			access: 'Public',
+			imageUrls: []
+		};
+		noteID = null; // Reset noteID when closing the modal
+	}
+
+	function closeWrittenModal() {
+		showWrittenModal = false;
 		noteData = {
 			title: '',
 			type: 'written',
 			tags: '',
-			access: 'Private',
+			access: 'Public',
 			content: '',
 			imageUrls: []
 		};
 		noteID = null; // Reset noteID when closing the modal
 	}
 
-	// try catch errors so that if there is issue, the action wont go through
-	//FIXME: fix bug number of notes != number in mynotes FIX!
+	const addTodoItem = () => {
+		if (noteData.newTodo && !noteData.todoList.includes(noteData.newTodo)) {
+			noteData.todoList.push(noteData.newTodo);
+			noteData.newTodo = ''; // Clear the input field
+		}
+	};
+
+	const removeTodoItem = (index) => {
+		noteData.todoList.splice(index, 1);
+	};
+
+	const storage = getStorage();
+
+	const handleImageUpload = async (event) => {
+		const files = event.target.files;
+		if (!files || files.length === 0) return;
+
+		const uploadedUrls = [];
+
+		for (let file of files) {
+			const storageRef = ref(storage, `notes/${file.name}`);
+
+			// Upload file to Firebase Storage
+			await uploadBytes(storageRef, file);
+
+			// Get the permanent download URL
+			const downloadURL = await getDownloadURL(storageRef);
+			uploadedUrls.push(downloadURL);
+		}
+
+		// Save the permanent image URLs in noteData
+		noteData.imageUrls = uploadedUrls;
+
+		console.log('Uploaded Image URLs:', noteData.imageUrls);
+	};
+
 	async function handleCreateNote() {
 		if (typeof noteData.tags === 'string') {
 			noteData.tags = noteData.tags.split(',').map((tag) => tag.trim());
@@ -93,7 +150,7 @@
 
 		await updateUserPersonalNotes();
 
-		closeModal();
+		closeWrittenModal();
 	}
 	async function handleDeleteNote(noteId) {
 		await noteHandlers.deleteNote(noteId, userId);
@@ -160,7 +217,9 @@
 										{note.noteCreatedAt
 											? (() => {
 													const date = new Date(note.noteCreatedAt.seconds * 1000);
-													const fullWeekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+													const fullWeekday = date.toLocaleDateString('en-GB', {
+														weekday: 'long'
+													});
 													const fullMonth = date.toLocaleDateString('en-GB', { month: 'long' });
 
 													const shortWeekday = fullWeekday.slice(0, 3);
@@ -194,7 +253,9 @@
 									<DropdownItem on:click={() => handleDeleteNote(note.id)}>Delete</DropdownItem>
 								</Dropdown>
 							</div>
+
 							<p>{note.content}</p>
+
 							<ul>
 								{#each note.tags as tag}
 									<li>{tag}</li>
@@ -227,7 +288,7 @@
 			<div>User has no notes.</div>
 		{/if}
 
-		{#if showModal}
+		{#if showWrittenModal}
 			<div class="modal">
 				<div class="modal-content">
 					<h2>Create a New Note</h2>
@@ -239,7 +300,6 @@
 					<select id="type" bind:value={noteData.type}>
 						<option value="written" selected={noteData.type === 'written'}>Written</option>
 						<option value="spoken" selected={noteData.type === 'spoken'}>Spoken</option>
-						<option value="images" selected={noteData.type === 'images'}>Images</option>
 						<option value="hybrid" selected={noteData.type === 'hybrid'}>Hybrid</option>
 					</select>
 
@@ -259,9 +319,48 @@
 						<option value="Public" selected={noteData.access === 'Public'}>Public</option>
 						<option value="Private" selected={noteData.access === 'Private'}>Private</option>
 					</select>
+					<!--Make it so the todoList composition is more structured// tied to the noteid svelte-->
+					{#if noteData.type === 'written'}
+						<div class="todo-list">
+							<label for="todo">To-Do List:</label>
+							<input type="text" bind:value={noteData.newTodo} placeholder="Add a to-do item" />
+							<button on:click={addTodoItem}>Add</button>
+
+							{#if noteData.todoList.length > 0}
+								<ul>
+									{#each noteData.todoList as todo, index}
+										<li>
+											{todo} <button on:click={() => removeTodoItem(index)}>Remove</button>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+					{/if}
 
 					<button on:click={handleCreateNote}>Save Note</button>
-					<button on:click={closeModal}>Cancel</button>
+					<button on:click={closeWrittenModal}>Cancel</button>
+				</div>
+			</div>
+			<!--details of the modal to add notes at bottom of page-->
+		{:else if showImagesModal}
+			<div class="modal">
+				<div class="modal-content">
+					<h2>Upload photos</h2>
+
+					<label for="title">Title:</label>
+					<input type="text" id="title" bind:value={noteData.title} />
+					<label for="access">Access:</label>
+					<select id="access" bind:value={noteData.access}>
+						<option value="Public" selected={noteData.access === 'Public'}>Public</option>
+						<option value="Private" selected={noteData.access === 'Private'}>Private</option>
+					</select>
+					<!-- Image upload input -->
+					<label for="images">Select images:</label>
+					<input type="file" id="images" accept="image/*" multiple on:change={handleImageUpload} />
+
+					<button on:click={handleCreateNote}>Save Note</button>
+					<button on:click={closeImagesModal}>Cancel</button>
 				</div>
 			</div>
 			<!--details of the modal to add notes at bottom of page-->
@@ -300,7 +399,7 @@
 							<div>
 								<button
 									class=" flex cursor-pointer items-center justify-center rounded-full border-8 border-[#282828] bg-[#282828] bg-white p-2 shadow-xl"
-									on:click={openModal}
+									on:click={openWrittenModal}
 									><svg
 										class="h-4 w-4 text-gray-800 dark:text-white"
 										aria-hidden="true"
@@ -348,6 +447,7 @@
 							<div>
 								<button
 									class=" flex cursor-pointer items-center justify-center rounded-full border-8 border-[#282828] bg-[#282828] bg-white p-2 shadow-xl"
+									on:click={openImagesModal}
 									><svg
 										class="h-4 w-4 text-gray-800 dark:text-white"
 										aria-hidden="true"
