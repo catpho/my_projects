@@ -71,10 +71,12 @@
 	}
 	function openWrittenModal() {
 		showWrittenModal = true;
+		noteData.type = 'written';
 	}
 
 	function openImagesModal() {
 		showImagesModal = true;
+		noteData.type = 'images';
 	}
 
 	function closeImagesModal() {
@@ -151,6 +153,7 @@
 		await updateUserPersonalNotes();
 
 		closeWrittenModal();
+		closeImagesModal();
 	}
 	async function handleDeleteNote(noteId) {
 		await noteHandlers.deleteNote(noteId, userId);

@@ -11,3 +11,8 @@ Goals:
         -make two views for users/// similar to the notes 
 
 +STAR GOAL: is to make other users to see profile and notes they have shared with 
+
+3/13
+
+made usecase for photos to be saved as notes but the slideshow function is not showable 
+todo list is also not very good right now 
