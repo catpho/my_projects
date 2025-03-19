@@ -114,7 +114,7 @@
 		{/if}
 		{#if data.noteData.todoList.length > 0}
 			{#each data.noteData.todoList as task, i}
-				<li class="flex items-center justify-between border-b p-2">
+				<li class="flex items-center justify-between border-none p-2">
 					<span
 						class="cursor-pointer {task.completed ? 'text-gray-500 line-through' : ''}"
 						on:click={() => toggleTask(task.id)}

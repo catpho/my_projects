@@ -25,12 +25,16 @@ experiment with voice recordings
 
 verbatim of lee 
 * Update notes that have images take the full width of 2 columns instead of just 1
-* Update functionality where crossing something out shows it as crossed out when opening it up again (might need to update the Note model to allow each line item to have a completed/incomplete value)
-* Add logo to the top left portion of the Header component
+        -will need to separate the types of notes to make the notes appear differently. I want the carosaul to be the bigger container and for the notes to be in it
+* DONE Update functionality where crossing something out shows it as crossed out when opening it up again (might need to update the Note model to allow each line item to have a completed/incomplete value)
+* DONE Add logo to the top left portion of the Header component
 * Work up a way to share notes between users
+
 * Create an audio input and audio listener component (Allow audio recording to occur over the app instead of selecting and adding an audio file)
 * Set up a public profile page for others to see
+    -already have the folder// copy the notes version 
 * Set up another version of the dashboard to view public notes
+    -hand in hand with being able to share notes 
 
 // following week
 * Set up Sendgrid Email to prompt another user to set up their own profile

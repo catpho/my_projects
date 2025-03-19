@@ -36,7 +36,7 @@
 
 	<ul class="mt-4">
 		{#each tasks as task, i}
-			<li class="flex items-center justify-between border-b p-2">
+			<li class="flex items-center justify-between p-2">
 				<span
 					class="cursor-pointer {task.completed ? 'text-gray-500 line-through' : ''}"
 					on:click={() => toggleTask(task.id)}

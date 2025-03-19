@@ -64,8 +64,6 @@
 		goto('/userSearch');
 	};
 
-
-
 	onMount(async () => {
 		if (uid) {
 			const storage = getStorage();
@@ -99,51 +97,53 @@
 		<!-- {#if pathname === '/privateDashboard'}
 			<h1 class="mr-auto items-center text-lg font-bold">My Notes</h1>
 		{/if} -->
-		<nav class="ml-auto flex flex-row items-center justify-center gap-10 rounded-full bg-white">
-			<ul>
-				<li class=" flex items-center gap-5 font-bold">
-					<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
-					<!-- FIXME: Make it so the user can choose to be active, not active, and then busy -->
-					{#if email != undefined}
-						<Avatar id="user-drop" src={imageUrl} class="cursor-pointer" dot={{ color: 'green' }} />
-						<Dropdown triggeredBy="#user-drop">
-							<DropdownHeader>
-								<span class="block text-sm">{displayName}</span>
-								<span class="block truncate text-sm font-medium">{email}</span>
-							</DropdownHeader>
-							<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
-							<DropdownItem on:click={goProfile}>Settings</DropdownItem>
-							<DropdownItem on:click={goSearch}>Search User</DropdownItem>
-							
-							<DropdownDivider />
-							<DropdownItem on:click={logout}>Sign out</DropdownItem>
-						</Dropdown>
-						<!-- svelte-ignore a11y_invalid_attribute -->
-					{:else}
-						<button
-							on:click={() => {
-								showLoginModal = !showLoginModal;
-							}}
-							on:click={() => {
-								register = true;
-							}}
-							type="button"
-							class="bg-adamas-blue hover:bg-adamas-blue/50 whitespace-nowrap rounded-lg px-6 py-2 text-white"
-							>Sign Up Now</button
-						>
-						<button
-							on:click={() => {
-								showLoginModal = !showLoginModal;
-							}}
-							on:click={() => {
-								register = false;
-							}}
-							type="button"
-							class="whitespace-nowrap rounded-lg px-6 py-2">Log In</button
-						>
-					{/if}
-				</li>
-			</ul>
+		<nav class="flex w-full items-center justify-between rounded-full bg-white px-5 py-3">
+			<!-- This if else statement is what causes the showLoginModal to not allow for a redirect to occur after loggin in / might be due to bubble/capture effect-->
+			<!-- FIXME: Make it so the user can choose to be active, not active, and then busy -->
+			<div class="">
+				<img src="/images/defaultLogo.png" alt="Logo" class="mr-auto h-8 w-8" />
+			</div>
+
+			<div class="">
+				{#if email != undefined}
+					<Avatar id="user-drop" src={imageUrl} class=" cursor-pointer" dot={{ color: 'green' }} />
+					<Dropdown triggeredBy="#user-drop">
+						<DropdownHeader>
+							<span class="block text-sm">{displayName}</span>
+							<span class="block truncate text-sm font-medium">{email}</span>
+						</DropdownHeader>
+						<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
+						<DropdownItem on:click={goProfile}>Settings</DropdownItem>
+						<DropdownItem on:click={goSearch}>Search User</DropdownItem>
+
+						<DropdownDivider />
+						<DropdownItem on:click={logout}>Sign out</DropdownItem>
+					</Dropdown>
+					<!-- svelte-ignore a11y_invalid_attribute -->
+				{:else}
+					<button
+						on:click={() => {
+							showLoginModal = !showLoginModal;
+						}}
+						on:click={() => {
+							register = true;
+						}}
+						type="button"
+						class="bg-adamas-blue hover:bg-adamas-blue/50 whitespace-nowrap rounded-lg px-6 py-2 text-white"
+						>Sign Up Now</button
+					>
+					<button
+						on:click={() => {
+							showLoginModal = !showLoginModal;
+						}}
+						on:click={() => {
+							register = false;
+						}}
+						type="button"
+						class="whitespace-nowrap rounded-lg px-6 py-2">Log In</button
+					>
+				{/if}
+			</div>
 		</nav>
 	</div>
 </header>
