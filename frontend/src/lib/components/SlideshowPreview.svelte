@@ -1,6 +1,24 @@
 <script>
 	//@ts-nocheck
+	import { Carousel } from 'flowbite-svelte';
+
 	export let imageUrls = [];
+
+	let finalImageData = [];
+
+	function transformImageUrls(imageUrls) {
+		return imageUrls.map((url) => {
+			const filename = decodeURIComponent(url.split('%2F').pop().split('?')[0]); // Extract filename
+			return {
+				alt: filename.replace(/\.[^/.]+$/, ''), // Remove file extension for alt text
+				src: url,
+				title: filename
+			};
+		});
+	}
+	$: if (imageUrls) {
+		finalImageData = transformImageUrls(imageUrls);
+	}
 
 	let currentIndex = 0;
 
@@ -40,7 +58,10 @@
 </script>
 
 <div>
-	{#if imageUrls && imageUrls.length > 0}
+	<Carousel images={finalImageData} let:Indicators>
+		<Indicators />
+	</Carousel>
+	<!-- {#if imageUrls && imageUrls.length > 0}
 		<div
 			class="relative cursor-pointer"
 			on:touchstart={startSwipe}
@@ -54,7 +75,7 @@
 			/>
 		</div>
 
-		<!-- Thumbnails -->
+		
 		<div class="mt-4 flex justify-center">
 			{#each imageUrls as img, index}
 				<img
@@ -66,5 +87,5 @@
 				/>
 			{/each}
 		</div>
-	{/if}
+	{/if} -->
 </div>

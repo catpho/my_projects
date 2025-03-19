@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { noteStore, noteHandlers } from '$lib/stores/noteStore';
 	import { auth } from '$lib/firebase/firebase.client';
-	import { Carousel } from 'flowbite-svelte';
 	import Slideshow from '$lib/components/Slideshow.svelte';
 
 	let timestamp = null;
@@ -41,6 +40,13 @@
 			await noteHandlers.updateNote(data.noteData.id, data.noteData, userId);
 			isEditing = false;
 		}
+	}
+	async function toggleTask(id) {
+		data.noteData.todoList = data.noteData.todoList.map((task) =>
+			task.id === id ? { ...task, completed: !task.completed } : task
+		);
+		console.log('attempting to update note.', data.noteData);
+		await noteHandlers.updateNote(data.noteData.id, data.noteData, userId);
 	}
 
 	onMount(() => {
@@ -105,6 +111,18 @@
 		<div>{data.noteData.content}</div>
 		{#if data.noteData.imageUrls?.length > 0}
 			<Slideshow imageUrls={data.noteData.imageUrls} />
+		{/if}
+		{#if data.noteData.todoList.length > 0}
+			{#each data.noteData.todoList as task, i}
+				<li class="flex items-center justify-between border-b p-2">
+					<span
+						class="cursor-pointer {task.completed ? 'text-gray-500 line-through' : ''}"
+						on:click={() => toggleTask(task.id)}
+					>
+						{task.text}
+					</span>
+				</li>
+			{/each}
 		{/if}
 	{/if}
 

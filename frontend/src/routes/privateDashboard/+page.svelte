@@ -17,6 +17,7 @@
 		expanded = !expanded;
 	}
 
+	let todoList = [];
 	let userData = null;
 	$: notes = [];
 	let myNotes = [];
@@ -251,6 +252,18 @@
 							<p>{note.content}</p>
 							{#if note.imageUrls?.length > 0}
 								<SlideshowPreview imageUrls={note.imageUrls} />
+							{/if}
+
+							{#if note.todoList.length > 0}
+								{#each note.todoList as task, i}
+									<li class="flex items-center justify-between border-b p-2">
+										<span
+											class="cursor-pointer {task.completed ? 'text-gray-500 line-through' : ''}"
+										>
+											{task.text}
+										</span>
+									</li>
+								{/each}
 							{/if}
 							<ul>
 								{#each note.tags as tag}

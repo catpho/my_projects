@@ -22,3 +22,21 @@ updated so app is installable via google chrome
 when done with app functionality, refactor app into components to reuse 
 make a todo app component and a slideshow component-- native carousal does not work!
 experiment with voice recordings 
+
+verbatim of lee 
+* Update notes that have images take the full width of 2 columns instead of just 1
+* Update functionality where crossing something out shows it as crossed out when opening it up again (might need to update the Note model to allow each line item to have a completed/incomplete value)
+* Add logo to the top left portion of the Header component
+* Work up a way to share notes between users
+* Create an audio input and audio listener component (Allow audio recording to occur over the app instead of selecting and adding an audio file)
+* Set up a public profile page for others to see
+* Set up another version of the dashboard to view public notes
+
+// following week
+* Set up Sendgrid Email to prompt another user to set up their own profile
+* Come up with what the email should say when prompting the new user to sign up
+* Start dealing with markdown after finishing most other things
+
+// set up different providor based logins like Google accounts, apple, and maybe twitter?
+
+// Second to final look over and think about how we might need to restyle the app for users, if changes are desired, create a list of changes
