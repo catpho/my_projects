@@ -12,6 +12,8 @@
 	import { DotsHorizontalOutline } from 'flowbite-svelte-icons';
 	import ToDo from '$lib/components/ToDo.svelte';
 	import SlideshowPreview from '$lib/components/SlideshowPreview.svelte';
+	import AudioNote from '$lib/components/noteComp/audioNote.svelte';
+
 	let expanded = false;
 	function toggleExpand() {
 		expanded = !expanded;
@@ -22,8 +24,11 @@
 	$: notes = [];
 	let myNotes = [];
 	let userId = null;
+
 	let showWrittenModal = false;
 	let showImagesModal = false;
+	let showAudioModal = false;
+
 	let noteID = null; // Track the ID of the note being edited
 	let newNoteId = null;
 	let noteData = {
@@ -79,6 +84,24 @@
 	function openImagesModal() {
 		showImagesModal = true;
 		noteData.type = 'images';
+	}
+
+	function openAudioModal() {
+		showAudioModal = true;
+		noteData.type = 'spoken';
+	}
+
+	function closeAudioModal() {
+		showAudioModal = false;
+		noteData = {
+			title: '',
+			type: 'spoken',
+			tags: '',
+			access: 'Public',
+			content: '',
+			imageUrls: []
+		};
+		noteID = null; // Reset noteID when closing the modal
 	}
 
 	function closeImagesModal() {
@@ -145,6 +168,7 @@
 
 		closeWrittenModal();
 		closeImagesModal();
+		closeAudioModal();
 	}
 	async function handleDeleteNote(noteId) {
 		await noteHandlers.deleteNote(noteId, userId);
@@ -359,6 +383,8 @@
 				</div>
 			</div>
 			<!--details of the modal to add notes at bottom of page-->
+		{:else if showAudioModal}
+			<AudioNote {showAudioModal} {closeAudioModal} {handleCreateNote}></AudioNote>
 		{:else}
 			<div class="fixed left-1/2 top-[90%] z-50 flex -translate-x-1/2 items-center justify-center">
 				<div
@@ -419,6 +445,7 @@
 							<div>
 								<button
 									class=" flex cursor-pointer items-center justify-center rounded-full border-8 border-[#282828] bg-[#282828] bg-white p-2 shadow-xl"
+									on:click={openAudioModal}
 									><svg
 										class="h-4 w-4 text-gray-800 dark:text-white"
 										aria-hidden="true"

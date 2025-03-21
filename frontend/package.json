@@ -50,6 +50,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"blueimp-load-image": "^5.16.0",
 		"firebase": "^11.2.0",
-		"svelte-icons": "^2.1.0"
+		"svelte-icons": "^2.1.0",
+		"uuid": "^11.1.0"
 	}
 }
