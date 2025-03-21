@@ -146,12 +146,20 @@ export const noteHandlers = {
                 ...noteData,
                 userId,
                 imageUrls: [],
+                audioUrl: null,
                 todoList: [],
                 noteCreatedAt: serverTimestamp(),
                 lastUpdated: serverTimestamp(),
 
                 // Initialize with an empty imageUrls array
             });
+
+            let audioUrl = null;
+
+            if (audioFile) {
+                audioUrl = await noteHandlers.uploadAudio(newNoteRef.id, audioFile);
+                await updateDoc(newNoteRef, { audioUrl });
+            }
 
             await noteHandlers.getUserNotes(userId);
             return newNoteRef.id;
@@ -183,6 +191,29 @@ export const noteHandlers = {
             throw error;
         }
     },
+
+    uploadAudio: async (noteId, audioFile) => {
+        try {
+            const storage = getStorage();
+            const storageRef = ref(storage, `note_audio/${noteId}/${audioFile.name}`);
+
+            // Upload the audio file
+            await uploadBytes(storageRef, audioFile);
+
+            // Get the audio URL after upload
+            const audioUrl = await getDownloadURL(storageRef);
+
+            // Update the note in Firestore with the new audio URL
+            const noteRef = doc(db, 'notes', noteId);
+            await updateDoc(noteRef, { audioUrl });
+
+            return audioUrl;
+        } catch (error) {
+            console.error('Error uploading audio:', error);
+            throw error;
+        }
+    }
+    ,
 
     // Update an existing note
     updateNote: async (noteId, noteData, userId) => {

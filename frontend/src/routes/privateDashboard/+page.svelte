@@ -99,7 +99,8 @@
 			tags: '',
 			access: 'Public',
 			content: '',
-			imageUrls: []
+			imageUrls: [],
+			audioUrl: ''
 		};
 		noteID = null; // Reset noteID when closing the modal
 	}
@@ -152,6 +153,17 @@
 		noteData.imageUrls = uploadedUrls;
 
 		console.log('Uploaded Image URLs:', noteData.imageUrls);
+	};
+	const handleAudioUpload = async (event) => {
+		const file = event.target.files[0];
+		if (!file) return;
+
+		const storageRef = ref(storage, `audioNotes/${file.name}`);
+		await uploadBytes(storageRef, file);
+		const downloadURL = await getDownloadURL(storageRef);
+
+		noteData.audioUrl = downloadURL;
+		console.log('Uploaded Audio URL:', noteData.audioUrl);
 	};
 
 	async function handleCreateNote() {
@@ -276,6 +288,12 @@
 							<p>{note.content}</p>
 							{#if note.imageUrls?.length > 0}
 								<SlideshowPreview imageUrls={note.imageUrls} />
+							{/if}
+							{#if note.audioUrl}
+								<audio controls>
+									<source src={note.audioUrl} type="audio/mpeg" />
+									Your browser does not support the audio element.
+								</audio>
 							{/if}
 
 							{#if note.todoList.length > 0}

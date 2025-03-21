@@ -4,10 +4,10 @@
 	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 	import { v4 as uuidv4 } from 'uuid';
 
-	const audioUrl = writable(null);
+	const audioUrl = writable(false);
 	const recording = writable(false);
 	let mediaRecorder;
-	let audioChunks = [];
+
 	let stream;
 
 	export let showAudioModal;
@@ -16,6 +16,7 @@
 	export let handleCreateNote;
 
 	async function startRecording() {
+		let audioChunks = [];
 		try {
 			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			mediaRecorder = new MediaRecorder(stream);
@@ -52,6 +53,7 @@
 		const storageRef = ref(storage, `audioNotes/${file.name}`);
 		await uploadBytes(storageRef, file);
 		const downloadUrl = await getDownloadURL(storageRef);
+		audioUrl.set(downloadUrl);
 		console.log('Audio uploaded at:', downloadUrl);
 	}
 
