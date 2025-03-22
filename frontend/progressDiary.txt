@@ -30,8 +30,8 @@ verbatim of lee
 * DONE Add logo to the top left portion of the Header component
 * Work up a way to share notes between users
 
-* Create an audio input and audio listener component (Allow audio recording to occur over the app instead of selecting and adding an audio file)
-* Set up a public profile page for others to see
+* DONE Create an audio input and audio listener component (Allow audio recording to occur over the app instead of selecting and adding an audio file)
+* DONE Set up a public profile page for others to see
     -already have the folder// copy the notes version 
 * Set up another version of the dashboard to view public notes
     -hand in hand with being able to share notes 

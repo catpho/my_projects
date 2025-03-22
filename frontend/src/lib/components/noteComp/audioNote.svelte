@@ -5,8 +5,10 @@
 	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 	import { v4 as uuidv4 } from 'uuid';
 
-	const audioUrl = writable(false);
+	const audioUrl = writable(null);
 	const recording = writable(false);
+
+	const storage = getStorage();
 	let mediaRecorder;
 
 	let stream;
@@ -19,21 +21,47 @@
 	async function startRecording() {
 		let audioChunks = [];
 		try {
+			// Accessing the user's microphone
 			stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			mediaRecorder = new MediaRecorder(stream);
 			mediaRecorder.start();
 			recording.set(true);
 
+			// Collect audio data as it's being recorded
 			mediaRecorder.ondataavailable = (event) => {
 				audioChunks.push(event.data);
 			};
 
+			// Once recording is stopped, create a blob and upload the file
 			mediaRecorder.onstop = async () => {
 				const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
 				const file = new File([audioBlob], `audio-${uuidv4()}.wav`, { type: 'audio/wav' });
 				const url = URL.createObjectURL(audioBlob);
-				audioUrl.set(url);
-				await uploadAudio(file);
+				audioUrl.set(url); // Set the temporary URL for playback
+
+				// Upload audio file to Firebase Storage
+				try {
+					// Create a reference for the audio file in Firebase
+					const storageRef = ref(storage, `notes/${file.name}`);
+
+					// Upload the file
+					await uploadBytes(storageRef, file);
+
+					// Get the downloadable URL for the uploaded file
+					const downloadURL = await getDownloadURL(storageRef);
+
+					// Update audioUrl with the final download URL
+					audioUrl.set(downloadURL);
+
+					// Update the note data with the audio URL
+					noteData.audioUrl = downloadURL;
+
+					console.log('Uploaded audio URL:', noteData.audioUrl);
+				} catch (error) {
+					console.error('Error uploading audio file:', error);
+				}
+
+				// Reset audio chunks for the next recording session
 				audioChunks = [];
 			};
 		} catch (error) {
@@ -45,25 +73,32 @@
 		if (mediaRecorder) {
 			mediaRecorder.stop();
 			recording.set(false);
-			stream.getTracks().forEach((track) => track.stop());
+			if (stream) {
+				stream.getTracks().forEach((track) => track.stop());
+			}
 		}
 	}
 
-	async function uploadAudio(file) {
-		const storage = getStorage();
-		const storageRef = ref(storage, `notes/${file.name}`);
-		await uploadBytes(storageRef, file);
-		const downloadUrl = await getDownloadURL(storageRef);
-		audioUrl.set(downloadUrl);
-		console.log('Audio uploaded at:', downloadUrl);
-	}
+	// const handleAudioUpload = async (event) => {
+	// 	const file = event.target.files[0];
+	// 	if (!file) return;
 
-	function handleFileUpload(event) {
-		const file = event.target.files[0];
-		if (file) {
-			uploadAudio(file);
-		}
-	}
+	// 	try {
+	// 		const storageRef = ref(storage, `notes/${file.name}`);
+	// 		await uploadBytes(storageRef, file);
+	// 		const downloadURL = await getDownloadURL(storageRef);
+
+	// 		// Update audioUrl correctly
+	// 		audioUrl.set(downloadURL); // This updates the `audioUrl` state
+
+	// 		// Ensure Firebase noteData is updated
+	// 		noteData.audioUrl = downloadURL;
+
+	// 		console.log('Uploaded audio URL:', noteData.audioUrl);
+	// 	} catch (error) {
+	// 		console.error('Error uploading audio file:', error);
+	// 	}
+	// };
 </script>
 
 {#if showAudioModal}
@@ -93,7 +128,7 @@
 			<button on:click={stopRecording} disabled={!$recording} class="stop-btn"
 				>Stop Recording</button
 			>
-			<input type="file" accept="audio/*" on:change={handleFileUpload} class="file-input" />
+			<!-- <input type="file" accept="audio/*" on:change={handleAudioUpload} class="file-input" /> -->
 
 			{#if $audioUrl}
 				<audio controls>
@@ -131,8 +166,7 @@
 	}
 
 	input,
-	select,
-	textarea {
+	select {
 		width: 100%;
 		padding: 8px;
 		margin-bottom: 15px;

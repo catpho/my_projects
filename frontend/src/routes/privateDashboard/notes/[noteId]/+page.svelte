@@ -124,6 +124,12 @@
 				</li>
 			{/each}
 		{/if}
+		{#if data.noteData.audioUrl}
+			<audio controls>
+				<source src={data.noteData.audioUrl} type="audio/wav" />
+				Your browser does not support the audio element.
+			</audio>
+		{/if}
 	{/if}
 
 	<!-- svelte-ignore a11y_no_static_element_interactions -->

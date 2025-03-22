@@ -39,7 +39,7 @@
 		content: '',
 		imageUrls: [],
 		todoList: [],
-		audioUrl: ''
+		audioUrl: null
 	};
 
 	let selectedImages = [];
@@ -101,7 +101,7 @@
 			access: 'Public',
 			content: '',
 			imageUrls: [],
-			audioUrl: ''
+			audioUrl: null
 		};
 		noteID = null; // Reset noteID when closing the modal
 	}
@@ -154,23 +154,6 @@
 		noteData.imageUrls = uploadedUrls;
 
 		console.log('Uploaded Image URLs:', noteData.imageUrls);
-	};
-	const handleAudioUpload = async (event) => {
-		const file = event.target.files[0];
-		if (!file) return;
-		try {
-			// Upload the audio file to Firebase Storage
-			await uploadBytes(storageRef, file);
-
-			// Get the permanent download URL
-			const downloadURL = await getDownloadURL(storageRef);
-
-			// Save the audio URL to the noteData object
-			noteData.audioUrl = downloadURL;
-			console.log('Uploaded Audio URL:', noteData.audioUrl);
-		} catch (error) {
-			console.error('Error uploading audio file:', error);
-		}
 	};
 
 	async function handleCreateNote() {
@@ -297,10 +280,7 @@
 								<SlideshowPreview imageUrls={note.imageUrls} />
 							{/if}
 							{#if note.audioUrl}
-								<audio controls>
-									<source src={note.audioUrl} type="audio/wav" />
-									Your browser does not support the audio element.
-								</audio>
+								click to listen!
 							{/if}
 
 							{#if note.todoList.length > 0}
