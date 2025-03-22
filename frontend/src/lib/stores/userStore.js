@@ -45,13 +45,17 @@ export const userHandlers = {
                 const userData = userDoc.data();
                 userStore.set({ isLoading: false, currentUser: { id: userDoc.id, ...userData } });
                 console.log('User fetched successfully');
+                console.log('data', userDoc.data());
+                return userDoc.data();
             } else {
                 userStore.set({ isLoading: false, currentUser: null });
                 console.log('User not found');
+                return null;
             }
         } catch (error) {
             console.error('Error fetching user:', error);
             userStore.set({ isLoading: false, currentUser: null });
+            return null;
         }
     },
 

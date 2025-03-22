@@ -151,15 +151,8 @@ export const noteHandlers = {
                 noteCreatedAt: serverTimestamp(),
                 lastUpdated: serverTimestamp(),
 
-                // Initialize with an empty imageUrls array
+
             });
-
-            let audioUrl = null;
-
-            if (audioFile) {
-                audioUrl = await noteHandlers.uploadAudio(newNoteRef.id, audioFile);
-                await updateDoc(newNoteRef, { audioUrl });
-            }
 
             await noteHandlers.getUserNotes(userId);
             return newNoteRef.id;
@@ -195,18 +188,17 @@ export const noteHandlers = {
     uploadAudio: async (noteId, audioFile) => {
         try {
             const storage = getStorage();
-            const storageRef = ref(storage, `note_audio/${noteId}/${audioFile.name}`);
-
-            // Upload the audio file
-            await uploadBytes(storageRef, audioFile);
-
-            // Get the audio URL after upload
-            const audioUrl = await getDownloadURL(storageRef);
+            const audioUrl = await Promise.all(
+                audioFile.map(async (file) => {
+                    const storageRef = ref(storage, `note_audio/${noteId}/${audioFile.name}`);
+                    await uploadBytes(storageRef, audioFile);
+                    return getDownloadURL(storageRef);
+                })
+            );
 
             // Update the note in Firestore with the new audio URL
             const noteRef = doc(db, 'notes', noteId);
             await updateDoc(noteRef, { audioUrl });
-
             return audioUrl;
         } catch (error) {
             console.error('Error uploading audio:', error);
@@ -279,6 +271,17 @@ export const noteHandlers = {
             return await getDownloadURL(storageRef);
         } catch (error) {
             console.error('Error fetching image URL:', error);
+            throw error;
+        }
+    }
+    ,
+    fetchAudioUrl: async (noteId) => {
+        try {
+            const storage = getStorage();
+            const storageRef = ref(storage, `note_audio/${noteId}`);
+            return await getDownloadURL(storageRef);
+        } catch (error) {
+            console.error('Error fetching audio URL:', error);
             throw error;
         }
     }

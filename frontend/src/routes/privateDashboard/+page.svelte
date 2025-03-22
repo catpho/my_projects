@@ -38,7 +38,8 @@
 		access: 'Public',
 		content: '',
 		imageUrls: [],
-		todoList: []
+		todoList: [],
+		audioUrl: ''
 	};
 
 	let selectedImages = [];
@@ -157,13 +158,19 @@
 	const handleAudioUpload = async (event) => {
 		const file = event.target.files[0];
 		if (!file) return;
+		try {
+			// Upload the audio file to Firebase Storage
+			await uploadBytes(storageRef, file);
 
-		const storageRef = ref(storage, `audioNotes/${file.name}`);
-		await uploadBytes(storageRef, file);
-		const downloadURL = await getDownloadURL(storageRef);
+			// Get the permanent download URL
+			const downloadURL = await getDownloadURL(storageRef);
 
-		noteData.audioUrl = downloadURL;
-		console.log('Uploaded Audio URL:', noteData.audioUrl);
+			// Save the audio URL to the noteData object
+			noteData.audioUrl = downloadURL;
+			console.log('Uploaded Audio URL:', noteData.audioUrl);
+		} catch (error) {
+			console.error('Error uploading audio file:', error);
+		}
 	};
 
 	async function handleCreateNote() {
@@ -291,7 +298,7 @@
 							{/if}
 							{#if note.audioUrl}
 								<audio controls>
-									<source src={note.audioUrl} type="audio/mpeg" />
+									<source src={note.audioUrl} type="audio/wav" />
 									Your browser does not support the audio element.
 								</audio>
 							{/if}
@@ -402,7 +409,7 @@
 			</div>
 			<!--details of the modal to add notes at bottom of page-->
 		{:else if showAudioModal}
-			<AudioNote {showAudioModal} {closeAudioModal} {handleCreateNote}></AudioNote>
+			<AudioNote {showAudioModal} {closeAudioModal} {handleCreateNote} {noteData}></AudioNote>
 		{:else}
 			<div class="fixed left-1/2 top-[90%] z-50 flex -translate-x-1/2 items-center justify-center">
 				<div

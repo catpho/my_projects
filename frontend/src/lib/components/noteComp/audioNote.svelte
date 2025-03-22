@@ -1,4 +1,5 @@
 <script>
+	//@ts-nocheck
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -11,7 +12,7 @@
 	let stream;
 
 	export let showAudioModal;
-	export let noteData = { title: '', tags: '', access: 'Public' };
+	export let noteData;
 	export let closeAudioModal;
 	export let handleCreateNote;
 
@@ -50,7 +51,7 @@
 
 	async function uploadAudio(file) {
 		const storage = getStorage();
-		const storageRef = ref(storage, `audioNotes/${file.name}`);
+		const storageRef = ref(storage, `notes/${file.name}`);
 		await uploadBytes(storageRef, file);
 		const downloadUrl = await getDownloadURL(storageRef);
 		audioUrl.set(downloadUrl);
