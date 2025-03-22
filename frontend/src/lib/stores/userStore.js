@@ -113,54 +113,90 @@ export const userHandlers = {
 
     sendCollabRequest: async (fromUserA, toUserB) => {
         try {
-            const userRef = doc(db, 'users', toUserB);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const updatedCollabRequests = [...userData.CollabRequests, { fromUserA, status: 'pending', timestamp: new Date().toISOString() }];
-                await updateDoc(userRef, { CollabRequests: updatedCollabRequests });
-                console.log('Collab request sent successfully');
-            } else {
-                console.log('User not found');
-            }
+            const requestsRef = collection(db, 'requests');
+            await addDoc(requestsRef, {
+                fromUserA,
+                toUserB,
+                status: 'Pending',
+                requestSentAt: new Date().toISOString()
+            });
+            console.log('collaboration request sent successfully');
         } catch (error) {
-            console.error('Error sending Collab request:', error);
+            console.error('Error sending collaboration request:', error);
         }
     },
 
 
-    acceptCollabRequest: async (userId, requestId) => {
-        try {
-            const userRef = doc(db, 'users', userId);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const request = userData.CollabRequests.find(req => req.fromUserA === requestId);
-                if (request) {
-                    // Add to Collabs list
-                    const updatedCollabs = [...userData.collaborators, request.fromUserA];
-                    const updatedCollabRequests = userData.CollabRequests.filter(req => req.fromUserA !== requestId);
-                    await updateDoc(userRef, { Collabs: updatedCollabs, CollabRequests: updatedCollabRequests });
 
-                    // Also update the requester's Collabs list
-                    const requesterRef = doc(db, 'users', request.fromUserA);
-                    const requesterDoc = await getDoc(requesterRef);
-                    if (requesterDoc.exists()) {
-                        const requesterData = requesterDoc.data();
-                        const requesterUpdatedCollabs = [...requesterData.collaborators, userId];
-                        await updateDoc(requesterRef, { Collabs: requesterUpdatedCollabs });
+    acceptCollabRequest: async (requestId) => {
+        try {
+            const requestRef = doc(db, 'requests', requestId);
+            const requestDoc = await getDoc(requestRef);
+            if (requestDoc.exists()) {
+                const requestData = requestDoc.data();
+                if (requestData.status === 'Pending') {
+                    // Update request status to 'Accepted'
+                    await updateDoc(requestRef, { status: 'Accepted' });
+
+                    // Add each user to the other's collabs list
+                    const senderRef = doc(db, 'users', requestData.fromUserA);
+                    const receiverRef = doc(db, 'users', requestData.toUserB);
+
+                    const senderDoc = await getDoc(senderRef);
+                    const receiverDoc = await getDoc(receiverRef);
+
+                    if (senderDoc.exists() && receiverDoc.exists()) {
+                        const senderData = senderDoc.data();
+                        const receiverData = receiverDoc.data();
+
+                        const senderUpdatedcollabs = [...senderData.collaborators, requestData.fromUserA];
+                        const receiverUpdatedcollabs = [...receiverData.collaborators, requestData.toUserB];
+
+                        await updateDoc(senderRef, { collabs: senderUpdatedcollabs });
+                        await updateDoc(receiverRef, { collabs: receiverUpdatedcollabs });
                     }
 
-                    console.log('Collab request accepted successfully');
+                    console.log('collab request accepted successfully');
+                } else {
+                    console.log('collab request already processed');
                 }
             } else {
-                console.log('User not found');
+                console.log('collab request not found');
             }
         } catch (error) {
-            console.error('Error accepting Collab request:', error);
+            console.error('Error accepting collab request:', error);
         }
     },
-    getCollaborators: async (userId) => {
+
+    rejectCollabRequest: async (requestId) => {
+        try {
+            const requestRef = doc(db, 'requests', requestId);
+            await updateDoc(requestRef, { status: 'Rejected' });
+            console.log('collab request rejected successfully');
+        } catch (error) {
+            console.error('Error rejecting collab request:', error);
+        }
+    },
+
+    getCollabRequests: async (userId) => {
+        try {
+            const requestsRef = collection(db, 'requests');
+            const q = query(requestsRef, where('toUserB', '==', userId), where('status', '==', 'Pending'));
+            const querySnapshot = await getDocs(q);
+
+            const requests = [];
+            querySnapshot.forEach((doc) => {
+                requests.push({ id: doc.id, ...doc.data() });
+            });
+
+            return requests;
+        } catch (error) {
+            console.error('Error fetching collab requests:', error);
+            return [];
+        }
+    },
+
+    getCollabs: async (userId) => {
         try {
             const userRef = doc(db, 'users', userId);
             const userDoc = await getDoc(userRef);
@@ -172,24 +208,7 @@ export const userHandlers = {
                 return [];
             }
         } catch (error) {
-            console.error('Error fetching collaborators:', error);
-            return [];
-        }
-    },
-    getCollabRequests: async (userId) => {
-        try {
-            const requestsRef = collection(db, 'requests');
-            const q = query(requestsRef, where('fromUserA', '==', userId), where('status', '==', 'Pending'));
-            const querySnapshot = await getDocs(q);
-
-            const requests = [];
-            querySnapshot.forEach((doc) => {
-                requests.push({ id: doc.id, ...doc.data() });
-            });
-
-            return requests;
-        } catch (error) {
-            console.error('Error fetching collab requests:', error);
+            console.error('Error fetching collabs:', error);
             return [];
         }
     },

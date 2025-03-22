@@ -89,7 +89,6 @@
 							biography: '',
 							myNotes: [],
 							collaborators: [],
-							collabRequests: [],
 							messages: [],
 							notifications: [],
 							birthday: '',
