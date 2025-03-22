@@ -21,7 +21,7 @@
 		userId: ''
 	};
 
-	$: userId = get(page).params.userId;
+	// $: userId = get(page).params.userId;
 	onMount(async () => {
 		if (!userId) {
 			console.warn('No userId provided.');
