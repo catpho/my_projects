@@ -89,6 +89,7 @@ export const userHandlers = {
         }
     },
 
+    //user data to set up is in layout where auth is also kept 
     updateUser: async (userId, userData) => {
         try {
             const userRef = doc(db, 'users', userId);
@@ -108,5 +109,121 @@ export const userHandlers = {
         } catch (error) {
             console.error('Error deleting user:', error);
         }
-    }
+    },
+
+    sendCollabRequest: async (fromUserA, toUserB) => {
+        try {
+            const userRef = doc(db, 'users', toUserB);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const updatedCollabRequests = [...userData.CollabRequests, { fromUserA, status: 'pending', timestamp: new Date().toISOString() }];
+                await updateDoc(userRef, { CollabRequests: updatedCollabRequests });
+                console.log('Collab request sent successfully');
+            } else {
+                console.log('User not found');
+            }
+        } catch (error) {
+            console.error('Error sending Collab request:', error);
+        }
+    },
+
+
+    acceptCollabRequest: async (userId, requestId) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const request = userData.CollabRequests.find(req => req.fromUserA === requestId);
+                if (request) {
+                    // Add to Collabs list
+                    const updatedCollabs = [...userData.collaborators, request.fromUserA];
+                    const updatedCollabRequests = userData.CollabRequests.filter(req => req.fromUserA !== requestId);
+                    await updateDoc(userRef, { Collabs: updatedCollabs, CollabRequests: updatedCollabRequests });
+
+                    // Also update the requester's Collabs list
+                    const requesterRef = doc(db, 'users', request.fromUserA);
+                    const requesterDoc = await getDoc(requesterRef);
+                    if (requesterDoc.exists()) {
+                        const requesterData = requesterDoc.data();
+                        const requesterUpdatedCollabs = [...requesterData.collaborators, userId];
+                        await updateDoc(requesterRef, { Collabs: requesterUpdatedCollabs });
+                    }
+
+                    console.log('Collab request accepted successfully');
+                }
+            } else {
+                console.log('User not found');
+            }
+        } catch (error) {
+            console.error('Error accepting Collab request:', error);
+        }
+    },
+    getCollaborators: async (userId) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                return userData.collaborators || [];
+            } else {
+                console.log('User not found');
+                return [];
+            }
+        } catch (error) {
+            console.error('Error fetching collaborators:', error);
+            return [];
+        }
+    },
+    getCollabRequests: async (userId) => {
+        try {
+            const requestsRef = collection(db, 'requests');
+            const q = query(requestsRef, where('fromUserA', '==', userId), where('status', '==', 'Pending'));
+            const querySnapshot = await getDocs(q);
+
+            const requests = [];
+            querySnapshot.forEach((doc) => {
+                requests.push({ id: doc.id, ...doc.data() });
+            });
+
+            return requests;
+        } catch (error) {
+            console.error('Error fetching collab requests:', error);
+            return [];
+        }
+    },
+
+    sendMessage: async (fromUserA, toUserB, message) => {
+        try {
+            const messagesRef = collection(db, 'messages');
+            await addDoc(messagesRef, {
+                fromUserA,
+                toUserB,
+                message,
+                timestamp: new Date().toISOString(),
+                isRead: false
+            });
+            console.log('Message sent successfully');
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    },
+
+    addNotification: async (userId, notification) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const updatedNotifications = [...userData.notifications, notification];
+                await updateDoc(userRef, { notifications: updatedNotifications });
+                console.log('Notification added successfully');
+            } else {
+                console.log('User not found');
+            }
+        } catch (error) {
+            console.error('Error adding notification:', error);
+        }
+    },
 };

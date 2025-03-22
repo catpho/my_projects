@@ -83,16 +83,19 @@
 						const userRef = doc(db, 'users', user.uid);
 						dataToSetToStore = {
 							email: user.email,
-							profileImage: profileImage, // Set profileImage from Google or default
+							profileImage: profileImage,
 							displayName: user.displayName,
 							uid: user.uid,
 							biography: '',
 							myNotes: [],
 							collaborators: [],
+							collabRequests: [],
+							messages: [],
+							notifications: [],
 							birthday: '',
 							createAt: new Date().toISOString(),
 							lastActive: new Date().toISOString(),
-							isPublic: false
+							isPublic: true
 						};
 						await setDoc(userRef, dataToSetToStore, { merge: true });
 						console.log('User document created successfully.');
