@@ -91,7 +91,7 @@
 							collaborators: [],
 							messages: [],
 							notifications: [],
-							birthday: '',
+							birthDay: '',
 							createAt: new Date().toISOString(),
 							lastActive: new Date().toISOString(),
 							isPublic: true

@@ -11,6 +11,7 @@
 		userData: {
 			displayName: '',
 			biography: '',
+			birthDay: null,
 			createAt: null,
 			email: '',
 			myNotes: [],
@@ -31,6 +32,7 @@
 					userId: userId,
 					userData: {
 						displayName: userData.displayName || '',
+						birthDay: userData.birthDay || null,
 						biography: userData.biography || '',
 						createAt: userData.createAt || null,
 						email: userData.email || '',
@@ -58,12 +60,28 @@
 
 				<div class="w-full justify-center text-center">
 					<div class="text-lg font-extrabold">{data.userData.displayName}</div>
-					<br />
-					<div>
-						About Me:
-						<br />
-						{data.userData.biography}
-					</div>
+					{#if data.userData.birthDay}
+						<div>
+							{new Date(data.userData.birthDay).toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'long',
+								day: '2-digit'
+							})}
+						</div>
+					{:else}
+						This user has not set a birthday!
+					{/if}
+					{#if data.userData.biography}
+						<div>
+							<div class="font-extrabold">About Me:</div>
+							{data.userData.biography}
+						</div>
+					{:else}
+						<div>
+							<div class="font-extrabold">About Me:</div>
+							This user was too lazy to write a bio!
+						</div>
+					{/if}
 				</div>
 
 				<hr class="my-4 w-3/4 border-t border-gray-300" />

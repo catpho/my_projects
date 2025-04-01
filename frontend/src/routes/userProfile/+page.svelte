@@ -373,7 +373,7 @@ profile picture, look at any subscriptions I have for this app. -->
 					<br />
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<div>About Me:</div>
+					<div class="font-extrabold">About Me:</div>
 
 					<input
 						type="text"
@@ -402,8 +402,8 @@ profile picture, look at any subscriptions I have for this app. -->
 					{/if}
 					<br />
 					<div>
-						About Me:
-						<br />
+						<div class="font-extrabold">About Me:</div>
+
 						{biography}
 					</div>
 				{/if}

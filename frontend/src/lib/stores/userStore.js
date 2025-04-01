@@ -48,6 +48,7 @@ export const userHandlers = {
                 if (updateStore) {
                     userStore.set({ isLoading: false, currentUser: userData });
                 }
+                console.log('userdata', userData)
 
                 return userData;
             }
