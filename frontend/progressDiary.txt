@@ -35,6 +35,8 @@ verbatim of lee
     -already have the folder// copy the notes version 
 * Set up another version of the dashboard to view public notes
     -hand in hand with being able to share notes 
+*make sure you can see when you record and when you stop 
+
 
 // following week
 * Set up Sendgrid Email to prompt another user to set up their own profile
@@ -44,3 +46,14 @@ verbatim of lee
 // set up different providor based logins like Google accounts, apple, and maybe twitter?
 
 // Second to final look over and think about how we might need to restyle the app for users, if changes are desired, create a list of changes
+
+//customizable themes
+//make it so you can add more photos to slideshows
+
+4/1 
+Bugs
+*Cannot see when the voice recorder is starting or ending. 
+*Pictures in notes are not responsive to screen sizes. 
+*When the user goes to inspect someone else's user profile. they inherit their name. 
+    **FIXED but now have issues with looking at setting for the user profile
+*When user signs into app, they do not get a loading screen but the same page for login until all informaiton is loaded. How to change so there is a symbol moving before the user sees content? 

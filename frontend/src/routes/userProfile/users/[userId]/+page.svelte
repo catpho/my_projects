@@ -1,12 +1,11 @@
 <script>
-	//@ts-nocheck
+	// @ts-nocheck
 	import { onMount } from 'svelte';
-	import { userStore, userHandlers } from '$lib/stores/userStore';
+	import { userHandlers } from '$lib/stores/userStore';
 	import { Avatar } from 'flowbite-svelte';
 	import { page } from '$app/stores';
 	import { get } from 'svelte/store';
 
-	// Default empty user data
 	let userId = '';
 	export let data = {
 		userData: {
@@ -21,23 +20,28 @@
 		userId: ''
 	};
 
-	// $: userId = get(page).params.userId;
 	onMount(async () => {
-		if (!userId) {
-			console.warn('No userId provided.');
-			return;
-		}
+		userId = get(page).params.userId;
+		if (!userId) return;
 
-		console.log('Fetching data for user:', userId);
 		try {
 			const userData = await userHandlers.getUser(userId);
 			if (userData) {
-				data = { ...data, userId, userData };
-			} else {
-				console.warn('User data not found.');
+				data = {
+					userId: userId,
+					userData: {
+						displayName: userData.displayName || '',
+						biography: userData.biography || '',
+						createAt: userData.createAt || null,
+						email: userData.email || '',
+						myNotes: userData.myNotes || [],
+						collaborators: userData.collaborators || [],
+						profileImage: userData.profileImage || ''
+					}
+				};
 			}
 		} catch (error) {
-			console.error('Error fetching user data:', error);
+			console.error('Error loading profile:', error);
 		}
 	});
 </script>
@@ -68,7 +72,7 @@
 					<div>
 						{#if data.userData.collaborators && data.userData.collaborators.length > 0}
 							{#each data.userData.collaborators as collaborator}
-								<div>{data.userData.collaborator}</div>
+								<div>{collaborator}</div>
 							{/each}
 						{:else}
 							No current collaborators present.

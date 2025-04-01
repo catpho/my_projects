@@ -13,7 +13,7 @@ export async function load({ params }) {
         }
 
         return {
-            userData: userData,
+            userData: userData
 
         };
     } catch (err) {
