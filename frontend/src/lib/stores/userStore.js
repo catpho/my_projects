@@ -37,18 +37,21 @@ export const userHandlers = {
         }
     },
 
-    getUser: async (userId) => {
+    getUser: async (userId, updateStore = false) => {
         try {
             const userRef = doc(db, 'users', userId);
             const userDoc = await getDoc(userRef);
             if (userDoc.exists()) {
-                console.log('User fetched successfully');
-                // ONLY return data without modifying userStore
-                return { id: userDoc.id, ...userDoc.data() };
-            } else {
-                console.log('User not found');
-                return null;
+                const userData = { id: userDoc.id, ...userDoc.data() };
+
+                // Only update store if explicitly requested (for current user)
+                if (updateStore) {
+                    userStore.set({ isLoading: false, currentUser: userData });
+                }
+
+                return userData;
             }
+            return null;
         } catch (error) {
             console.error('Error fetching user:', error);
             return null;

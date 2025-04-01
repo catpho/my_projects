@@ -3,6 +3,8 @@ profile picture, look at any subscriptions I have for this app. -->
 
 <script>
 	// @ts-nocheck
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
 	import { authStore, authHandlers } from '$lib/stores/authStore';
 	import { db } from '$lib/firebase/firebase.client';
 	import { setDoc, doc } from 'firebase/firestore';
@@ -42,6 +44,9 @@ profile picture, look at any subscriptions I have for this app. -->
 	function closeModal() {
 		showModal = false;
 	}
+
+	let isViewingOwnProfile = false;
+	let profileUserId = ''; // The user ID being viewed
 
 	async function handlePasswordChange() {
 		// Validation
@@ -156,6 +161,12 @@ profile picture, look at any subscriptions I have for this app. -->
 				canvas: true
 			}
 		);
+		if (isViewingOwnProfile) {
+			await userHandlers.updateUser(uid, updatedUserData);
+		} else {
+			// For other users' profiles, you might want different behavior
+			// or disable editing entirely
+		}
 	}
 	//do we need to have the year input included?
 	async function handleBirthdateUpdate() {
@@ -202,6 +213,28 @@ profile picture, look at any subscriptions I have for this app. -->
 	}
 
 	onMount(async () => {
+		// Determine if we're viewing own profile or another user's
+		profileUserId = get(page).params.userId;
+		const currentUserId = get(authStore)?.currentUser?.uid;
+		isViewingOwnProfile = !profileUserId || profileUserId === currentUserId;
+
+		if (isViewingOwnProfile) {
+			// Load current user data (with store update)
+			await userHandlers.getUser(currentUserId, true);
+		} else {
+			// Load other user's data (without affecting store)
+			const userData = await userHandlers.getUser(profileUserId);
+			if (userData) {
+				// Populate local variables for display
+				displayName = userData.displayName;
+				profileImage = userData.profileImage;
+				birthDay = userData.birthDay;
+				collaborators = userData.collaborators;
+				myNotes = userData.myNotes;
+				biography = userData.biography;
+				// ... other fields ...
+			}
+		}
 		if (uid) {
 			const storage = getStorage();
 			const storageRef = ref(storage, `profile_images/${uid}`);
@@ -331,27 +364,24 @@ profile picture, look at any subscriptions I have for this app. -->
 					<div class="text-lg font-extrabold">{displayName}</div>
 
 					<input
-					class="border-none "
+						class="border-none"
 						type="date"
 						bind:value={birthDay}
 						on:change={handleBirthdateUpdate}
 						placeholder="Select your birthdate"
 					/>
-					<br/>
+					<br />
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<div>
-						About Me:
+					<div>About Me:</div>
 
-					</div>
-					
 					<input
-					type="text"
-					class="border-none"
-					bind:value={biography}
-					on:change={handleBioUpdate}
-					placeholder="Tell me about yourself!"
-				/>
+						type="text"
+						class="border-none"
+						bind:value={biography}
+						on:change={handleBioUpdate}
+						placeholder="Tell me about yourself!"
+					/>
 					<div
 						class="mt-1 flex cursor-pointer justify-center text-sm font-bold text-[#9EB9FF] hover:underline"
 						on:click={() => openModal()}
@@ -393,11 +423,11 @@ profile picture, look at any subscriptions I have for this app. -->
 				</div>
 
 				{#if isEditing}
-					<a href="/userSearch"
+					<a
+						href="/userSearch"
 						class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
 					>
 						+add a User
-
 					</a>
 				{/if}
 			</div>
