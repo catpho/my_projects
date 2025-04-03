@@ -122,13 +122,38 @@
 			<button on:click={closeAudioModal}>Cancel</button>
 
 			<h3>Audio Recording</h3>
-			<button on:click={startRecording} disabled={$recording} class="record-btn"
-				>Start Recording</button
-			>
-			<button on:click={stopRecording} disabled={!$recording} class="stop-btn"
-				>Stop Recording</button
-			>
-			<!-- <input type="file" accept="audio/*" on:change={handleAudioUpload} class="file-input" /> -->
+			<div class="recording-controls">
+				{#if $recording}
+					<div class="recording-indicator">
+						<div class="pulsing-dot"></div>
+						<span>Recording...</span>
+					</div>
+				{/if}
+				<div class="button-group">
+					<button
+						on:click={startRecording}
+						disabled={$recording}
+						class:recording={$recording}
+						class="record-btn"
+					>
+						{#if $recording}
+							<svg
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<circle cx="12" cy="12" r="9" fill="white" />
+							</svg>
+						{/if}
+						Start Recording
+					</button>
+					<button on:click={stopRecording} disabled={!$recording} class="stop-btn">
+						Stop Recording
+					</button>
+				</div>
+			</div>
 
 			{#if $audioUrl}
 				<audio controls>
@@ -176,9 +201,80 @@
 
 	button {
 		cursor: pointer;
+		padding: 8px 12px;
+		border: none;
+		border-radius: 4px;
+		margin: 5px;
+		transition: all 0.2s;
 	}
 
 	button:hover {
-		background-color: #457da0;
+		opacity: 0.9;
+	}
+
+	button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+
+	/* Recording controls */
+	.recording-controls {
+		margin: 15px 0;
+	}
+
+	.recording-indicator {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+		color: #ff0000;
+		font-weight: bold;
+	}
+
+	.pulsing-dot {
+		width: 12px;
+		height: 12px;
+		background-color: #ff0000;
+		border-radius: 50%;
+		animation: pulse 1.5s infinite;
+	}
+
+	@keyframes pulse {
+		0% {
+			transform: scale(0.95);
+			opacity: 0.7;
+		}
+		50% {
+			transform: scale(1.1);
+			opacity: 1;
+		}
+		100% {
+			transform: scale(0.95);
+			opacity: 0.7;
+		}
+	}
+
+	.button-group {
+		display: flex;
+		gap: 10px;
+	}
+
+	.record-btn {
+		background-color: #4caf50;
+		color: white;
+	}
+
+	.record-btn.recording {
+		background-color: #f44336;
+	}
+
+	.stop-btn {
+		background-color: #f44336;
+		color: white;
+	}
+
+	audio {
+		width: 100%;
+		margin-top: 15px;
 	}
 </style>
