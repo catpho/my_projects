@@ -53,7 +53,57 @@ verbatim of lee
 4/1 
 Bugs
 *Cannot see when the voice recorder is starting or ending. 
+*recording can only be played on the computer and not phone 
 *Pictures in notes are not responsive to screen sizes. 
-*When the user goes to inspect someone else's user profile. they inherit their name. 
-    **FIXED but now have issues with looking at setting for the user profile
-*When user signs into app, they do not get a loading screen but the same page for login until all informaiton is loaded. How to change so there is a symbol moving before the user sees content? 
+//*When the user goes to inspect someone else's user profile. they inherit their name. 
+    **FIXED but now have issues with looking at setting for the user profile//
+*When user signs into app, they do not get a loading screen 
+but the same page for login until all informaiton is loaded. How to change so there is a symbol moving before the user sees content? 
+
+4/3 
+update audio note recording but the modal does not close when creating a note. 
+
+4/4
+setting up aesthetics: 
+fix style of -: 
+    -todo list , adding, deleting 
+    -recording , FIXME: looks like tech stack for audio recording is recording RTC, with howler.js playback, and mediarecorder 
+    IOS SAFARI SEEMS TO HAVE ISSUES WITH AUDIO []
+    -userprofiles , a LOT of blank space 
+userstore and authstore are merge together, separate them later 
+
+
+
+4/8 
+Deliverables 
+
+Login/ Auth 
+*make it so users can login using google and other alternatives 
+*have a loading inbetween sign when a successful login occurs 
+***separate the user from the auth
+
+Landing Page//Notepad Page 
+*make the view of slideshow consistent no matter the screen size
+** for private notes, how can the user be able to delete them?  
+
+Notes Edit
+*fidget doesnt work, just for show for now? 
+*you technically can add to the user notes with slideshows and with audio// disable it 
+
+UserSearch 
+*sending an email to another person to sign up doesn't work for now
+*make it so friend request is limited one to one. Cannot have multiple requests from one person 
+
+userprofiles
+*add a little more color and design to the profiles 
+*nice touch for a birthday icon to user birthdays 
+*user start dates? maybe use the date to signify the length they have been a user 
+
+Social
+*make request work and for users to be able to see another users board EXCEPT for private notes 
+
+CHERRIES ON TOP 
+*for the adding the notes, make the notes templates much cleaner and more to the theme that the notes is typed 
+    -not satisfied with the notes list
+    -possible to edit the to do list after adding? 
+    

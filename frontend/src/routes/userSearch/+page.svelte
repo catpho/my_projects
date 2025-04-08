@@ -1,5 +1,5 @@
 <script>
-	// @ts-ignore
+	// @ts-nocheck
 	import { Search, Listgroup, Avatar } from 'flowbite-svelte';
 	import { writable, derived } from 'svelte/store';
 
@@ -30,6 +30,20 @@
 			query.set([]);
 		}
 	};
+	let requestId;
+	let currentUser;
+	let selectedUser;
+
+	userStore.subscribe((state) => {
+		currentUser = state?.currentUser?.uid;
+	});
+
+	async function sendRequest(toUserId) {
+		console.log('userId', toUserId);
+		console.log('currentuser', currentUser);
+		requestId = await userHandlers.sendCollabRequest(currentUser, toUserId);
+		console.log('requestId', requestId);
+	}
 </script>
 
 <div class="flex h-screen flex-col">
@@ -55,7 +69,10 @@
 						class="rounded px-4 py-2 text-white transition-colors duration-300"
 						class:bg-green-500={!requestSent}
 						class:bg-gray-500={requestSent}
-						on:click={() => (requestSent = !requestSent)}
+						on:click={() => {
+							requestSent = !requestSent;
+							sendRequest(item.id);
+						}}
 					>
 						{requestSent ? 'Request Sent' : 'Send Request'}
 					</button>

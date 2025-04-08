@@ -48,7 +48,7 @@ export const userHandlers = {
                 if (updateStore) {
                     userStore.set({ isLoading: false, currentUser: userData });
                 }
-                console.log('userdata', userData)
+                // console.log('userdata', userData)
 
                 return userData;
             }
@@ -114,13 +114,15 @@ export const userHandlers = {
     sendCollabRequest: async (fromUserA, toUserB) => {
         try {
             const requestsRef = collection(db, 'requests');
-            await addDoc(requestsRef, {
+            const requestData = await addDoc(requestsRef, {
                 fromUserA,
                 toUserB,
                 status: 'Pending',
                 requestSentAt: new Date().toISOString()
             });
-            console.log('collaboration request sent successfully');
+
+            alert('collaboration request sent successfully');
+            return requestData.id;
         } catch (error) {
             console.error('Error sending collaboration request:', error);
         }

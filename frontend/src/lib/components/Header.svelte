@@ -58,6 +58,9 @@
 	const goProfile = () => {
 		goto('/userProfile'); // Navigate to user profile
 	};
+	const goRequests = () => {
+		goto('/collabRequests'); // Navigate to user profile
+	};
 
 	//Set functions temp to bypass bug that redirects to privatedashboard when the user types another link into head
 	const goSearch = () => {
@@ -115,7 +118,7 @@
 						<DropdownItem on:click={goHome}>Dashboard</DropdownItem>
 						<DropdownItem on:click={goProfile}>Settings</DropdownItem>
 						<DropdownItem on:click={goSearch}>Search User</DropdownItem>
-
+						<DropdownItem on:click={goRequests}>Requests</DropdownItem>
 						<DropdownDivider />
 						<DropdownItem on:click={logout}>Sign out</DropdownItem>
 					</Dropdown>
