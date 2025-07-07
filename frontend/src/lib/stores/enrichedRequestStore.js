@@ -6,36 +6,39 @@ import { requestStore } from './requestStore';
 export const enrichedRequestStore = derived(
     [userStore, requestStore],
     ([$userStore, $requestStore]) => {
-        // Initialize with default values if stores are not properly loaded
         const users = Array.isArray($userStore?.users) ? $userStore.users : [];
-        const requests = Array.isArray($requestStore?.requests) ? $requestStore.requests : [];
+        const rawRequests = Array.isArray($requestStore?.requests) ? $requestStore.requests : [];
         const isLoading = $requestStore?.isLoading ?? false;
 
-        // Early return if no data
-        if (!users.length || !requests.length) {
+        // Convert Firestore Timestamp to Date if needed
+        const requests = rawRequests.map(request => ({
+            ...request,
+            requestSentAt: request.requestSentAt?.toDate?.() ||
+                new Date(request.requestSentAt)
+        }));
+
+        if (isLoading || !users.length || !requests.length) {
             return { isLoading, requests: [] };
         }
 
-        // Safely map requests to enriched objects
         const enrichedRequests = requests.map(request => {
-            if (!request) return null;
-
-            const sender = users.find(user => user?.id === request?.fromUserA);
-
+            const sender = users.find(user => user?.id === request.fromUserA);
+            console.log(`Looking for user ${request.fromUserA} in`, users);
             return {
                 ...request,
-                sender: sender || {
-                    id: request?.fromUserA || 'unknown',
-                    displayName: 'Unknown User',
-                    photoURL: null
+                sender: {
+                    id: sender?.id || request.fromUserA || 'unknown',
+                    displayName: sender?.displayName || 'Unknown User',
+                    photoURL: sender?.photoURL || null,
+                    // Add any other sender properties you might need
                 }
             };
-        }).filter(Boolean); // Remove any null entries
-
+        });
+        console.log('requests:', enrichedRequests)
         return {
             isLoading,
             requests: enrichedRequests
         };
     },
-    { isLoading: true, requests: [] } // Initial value
+    { isLoading: true, requests: [] }
 );

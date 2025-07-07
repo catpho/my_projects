@@ -20,30 +20,43 @@
 	}
 </script>
 
-<div class="mx-auto max-w-md rounded-lg bg-white p-4 shadow-lg">
-	<h2 class="mb-4 text-xl font-bold">To-Do List</h2>
+<div class="mx-auto max-w-md p-4">
+	<h2 class="mb-4 text-lg font-medium text-gray-800">To-Do List</h2>
 
-	<div class="flex gap-2">
+	<div class="mb-4 flex gap-2">
 		<input
 			type="text"
 			bind:value={newTask}
 			placeholder="Add a new task..."
-			class="w-full rounded-lg border p-2"
+			class="flex-1 border-b border-gray-300 p-2 focus:border-gray-500 focus:outline-none"
 			on:keydown={(e) => e.key === 'Enter' && addTask()}
 		/>
-		<button on:click={addTask} class="rounded-lg bg-blue-500 px-4 py-2 text-white">Add</button>
+		<button
+			on:click={addTask}
+			class="px-3 py-2 text-gray-500 transition-colors hover:text-gray-700"
+		>
+			+
+		</button>
 	</div>
 
-	<ul class="mt-4">
+	<ul class="space-y-1">
 		{#each tasks as task, i}
-			<li class="flex items-center justify-between p-2">
+			<li class="flex items-center justify-between py-1">
 				<span
-					class="cursor-pointer {task.completed ? 'text-gray-500 line-through' : ''}"
+					class="cursor-pointer text-gray-700 {task.completed ? 'text-gray-400 line-through' : ''}"
 					on:click={() => toggleTask(task.id)}
+					on:keydown={(e) => e.key === 'Enter' && toggleTask(task.id)}
+					tabindex="0"
+					role="button"
 				>
 					{task.text}
 				</span>
-				<button on:click={() => removeTask(task.id)} class="text-red-500">✖</button>
+				<button
+					on:click={() => removeTask(task.id)}
+					class="text-sm text-gray-400 transition-colors hover:text-gray-600"
+				>
+					×
+				</button>
 			</li>
 		{/each}
 	</ul>

@@ -175,17 +175,16 @@
 				<label class="text-sm" for="lastName">Last Name</label>
 				<input class="rounded" bind:value={lastName} type="text" on:input={trimInput} />
 
-				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<div
-					class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
+				<button
+					type="button"
+					class="mt-1 flex cursor-pointer justify-end border-none bg-transparent p-0 text-sm font-bold text-[#9EB9FF] hover:underline"
 					on:click={() => {
 						registerStep = 1;
 						displayLoginValidator = false;
 					}}
-					on:keydown={() => {}}
 				>
 					Back to email and password
-				</div>
+				</button>
 
 				<button
 					class="bg-adamas-blue mt-4 w-full rounded-xl py-2 text-sm font-bold transition-all duration-300 hover:scale-105 hover:bg-[#aec3fc]"
@@ -219,17 +218,16 @@
 			<label class="text-sm" for="loginPassword">Password </label>
 			<PasswordInput bind:value={password} label="loginPassword" />
 
-			<!-- svelte-ignore a11y-no-static-element-interactions -->
-			<div
-				class="mt-1 flex cursor-pointer justify-end text-sm font-bold text-[#9EB9FF] hover:underline"
+			<button
+				type="button"
+				class="mt-1 flex cursor-pointer justify-end border-none bg-transparent p-0 text-sm font-bold text-[#9EB9FF] hover:underline"
 				on:click={() => {
 					forgotPassword = true;
 					displayLoginValidator = false;
 				}}
-				on:keydown={() => {}}
 			>
 				Forgot Password?
-			</div>
+			</button>
 
 			<button
 				class="bg-adamas-blue mt-4 w-full rounded-xl py-2 text-sm font-bold transition-all duration-300 hover:scale-105 hover:bg-[#aec3fc]"
@@ -284,59 +282,56 @@
 	{/if}
 
 	{#if register && !forgotPassword}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
-			class="ml-24 mt-10 flex cursor-pointer flex-row items-center justify-center gap-2 text-sm text-gray-600"
+		<button
+			type="button"
+			class="ml-24 mt-10 flex cursor-pointer flex-row items-center justify-center gap-2 border-none bg-transparent p-0 text-sm text-gray-600"
 			on:click={() => {
 				register = false;
 				displayLoginValidator = false;
 			}}
-			on:keydown={() => {}}
 		>
 			Already have an account?
-			<p
+			<span
 				class="cursor-pointer text-center font-bold
 			text-[#9EB9FF] underline hover:text-[#aec3fc]"
 			>
 				Log In
-			</p>
-		</div>
+			</span>
+		</button>
 	{:else if !register && !forgotPassword}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
-			class="ml-24 mt-10 flex cursor-pointer flex-row items-center justify-center gap-2 text-sm text-gray-600"
+		<button
+			type="button"
+			class="ml-24 mt-10 flex cursor-pointer flex-row items-center justify-center gap-2 border-none bg-transparent p-0 text-sm text-gray-600"
 			on:click={() => {
 				register = true;
 				displayLoginValidator = false;
 			}}
-			on:keydown={() => {}}
 		>
 			Don't have an account?
-			<p
+			<span
 				class="cursor-pointer text-center font-bold
 			text-[#9EB9FF] underline hover:text-[#aec3fc]"
 			>
 				Register
-			</p>
-		</div>
+			</span>
+		</button>
 	{:else if forgotPassword}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div
-			class="ml-[-44px] mt-10 flex w-full cursor-pointer flex-row items-center justify-center text-sm"
+		<button
+			type="button"
+			class="ml-[-44px] mt-10 flex w-full cursor-pointer flex-row items-center justify-center border-none bg-transparent p-0 text-sm"
 			on:click={() => {
 				register = false;
 				forgotPassword = false;
 				displayLoginValidator = false;
 			}}
-			on:keydown={() => {}}
 		>
-			<p
+			<span
 				class="cursor-pointer text-center font-bold
 			text-[#9EB9FF] underline hover:text-[#aec3fc]"
 			>
 				Log In
-			</p>
-		</div>
+			</span>
+		</button>
 	{/if}
 </div>
 
